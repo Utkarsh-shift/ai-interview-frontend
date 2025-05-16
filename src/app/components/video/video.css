@@ -1,0 +1,69 @@
+.App {
+  height: 100%;
+  padding: 0 10px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.App > * {
+  margin: 3px 0;
+}
+
+.header {
+  text-align: center;
+}
+
+.header p {
+  margin: 5px 0;
+}
+
+.code {
+  padding: 5px;
+  color: greenyellow;
+  background-color: black;
+  border-radius: 5px;
+}
+
+.content > video,
+.content > canvas {
+  display: block;
+  width: 100%;
+  max-width: 508px; /* Ensure both have the same width */
+  max-height: 305px; /* Ensure both have the same height */
+  border-radius: 10px;
+  position: relative; /* Ensure correct positioning */
+}
+
+.content {
+  position: fixed;
+  top: 80px; /* Distance from the top */
+  right: 20px; /* Distance from the right */
+  display: flex;
+  flex-direction: column; /* Stack video and buttons vertically */
+  align-items: center;
+  z-index: 1000; /* Ensure it's above other elements */
+  width: 600px;
+}
+
+
+.content > canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 10px; /* Keep border radius consistent */
+  pointer-events: none; /* Prevent interaction blocking */
+}
+
+.content > button {
+  margin-top: 5px; /* Add space between video and buttons */
+}
+button:hover {
+  color: black;
+  background-color: white;
+  border: 2px solid black;
+}

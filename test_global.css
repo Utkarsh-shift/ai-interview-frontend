@@ -1,0 +1,251 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #fafafa;
+  --foreground: #171717;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+}
+
+.App {
+  height: 100%;
+  padding: 0 10px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.App > * {
+  margin: 3px 0;
+}
+
+.header {
+  text-align: center;
+}
+
+.header p {
+  margin: 5px 0;
+}
+
+.code {
+  padding: 5px;
+  color: rgb(255, 47, 144);
+  background-color: black;
+  border-radius: 5px;
+}
+
+.content > img {
+  display: none;
+  width: 100%;
+  max-width: 50%;
+  max-height: 500px;
+  border-radius: 10px;
+}
+
+.content > video {
+  display: none;
+  width: 100%;
+  max-width: 50px;
+  max-height: 20px;
+  border-radius: 10px;
+}
+
+.content {
+  position: relative;
+}
+
+.content > canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50%;
+  height: 50%;
+}
+
+button {
+  text-decoration: none;
+  color: white;
+  background-color: black;
+  border: 2px solid black;
+  margin: 0 5px;
+  padding: 5px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+button:hover {
+  color: black;
+  background-color: white;
+  border: 2px solid black;
+}
+
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Oxygen", "Ubuntu",
+    "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
+}
+
+#root {
+  width: 100%;
+  height: 100%;
+}
+
+.wrapper {
+  background-color: rgba(255, 255, 255, 0.5);
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.wrapper > .spinner {
+  width: 40px;
+  height: 40px;
+  background-color: #333;
+
+  margin: 10px 10px;
+  -webkit-animation: sk-rotateplane 1.2s infinite ease-in-out;
+  animation: sk-rotateplane 1.2s infinite ease-in-out;
+}
+
+@-webkit-keyframes sk-rotateplane {
+  0% {
+    -webkit-transform: perspective(120px);
+  }
+  50% {
+    -webkit-transform: perspective(120px) rotateY(180deg);
+  }
+  100% {
+    -webkit-transform: perspective(120px) rotateY(180deg) rotateX(180deg);
+  }
+}
+
+@keyframes sk-rotateplane {
+  0% {
+    transform: perspective(120px) rotateX(0deg) rotateY(0deg);
+    -webkit-transform: perspective(120px) rotateX(0deg) rotateY(0deg);
+  }
+  50% {
+    transform: perspective(120px) rotateX(-180.1deg) rotateY(0deg);
+    -webkit-transform: perspective(120px) rotateX(-180.1deg) rotateY(0deg);
+  }
+  100% {
+    transform: perspective(120px) rotateX(-180deg) rotateY(-179.9deg);
+    -webkit-transform: perspective(120px) rotateX(-180deg) rotateY(-179.9deg);
+  }
+}
+
+.wrapper > p {
+  margin: 0;
+  font-size: large;
+}
+.ptt-button {
+  padding: 10px 20px;
+  border-radius: 20px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.ptt-button.active {
+  background-color: #f44336;
+  transform: scale(1.05);
+}
+
+.ptt-button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.recording-indicator {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  margin-right: 8px;
+  border-radius: 50%;
+  background-color: red;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(0.95); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(0.95); }
+}
+
+.audio-level-indicator {
+  height: 5px;
+  background: linear-gradient(to right, #4CAF50, #FFC107, #F44336);
+  margin-top: 5px;
+  border-radius: 3px;
+  transition: width 0.1s;
+}
+
+.main_sec {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+div#media {
+  width: 50%;
+  height: 300px;
+  margin-left: 20px;
+}
+.transcript {
+  position: sticky;
+  width: 100%;
+  bottom: -10px;
+  max-height: 45vh;
+}
+ .transcript {
+  position: fixed;
+  width: 100%;
+  bottom: 50px;
+  max-height: 45vh;
+} 
+
+.transcript_iner {
+  width: 100%;
+  min-height: 82%;
+  max-height: 82%;
+  overflow: hidden;
+  overflow-y: scroll;
+} 
+
