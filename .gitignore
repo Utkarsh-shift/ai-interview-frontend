@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # These are some examples of commonly ignored file patterns.
 # You should customize this list as applicable to your project.
 # Learn more about .gitignore:
@@ -49,7 +48,6 @@ Thumbs.db
 *.mov
 *.wmv
 
-=======
 # Dependency directories
 node_modules/
 .next/
@@ -98,15 +96,6 @@ public/screen_uploads/
 public/**/*.mp4
 public/**/*.webm
 
-# AI/ML model files
-*.bin
-*.json
-*.h5
-*.pb
-*.pth
-*.ckpt
-*.weights
-
 # Misc
 *.tmp
 *.bak
@@ -115,4 +104,3 @@ public/**/*.webm
 
 # Package lock (optional)
 package-lock.json
->>>>>>> 12ac19f68 (testdep)
