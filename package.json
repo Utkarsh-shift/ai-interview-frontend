@@ -1,0 +1,67 @@
+{
+  "name": "realtime-examples",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@tensorflow-models/coco-ssd": "^2.2.3",
+    "@tensorflow/tfjs": "^4.22.0",
+    "axios": "^1.8.4",
+    "body-parser": "^1.20.3",
+    "browser-image-compression": "^2.0.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
+    "express": "^4.21.2",
+    "git": "^0.1.5",
+    "hotkeys": "^1.0.0",
+    "hotkeys-js": "^3.13.9",
+    "html2canvas": "^1.4.1",
+    "https": "^1.0.0",
+    "lucide-react": "^0.484.0",
+    "mysql": "^2.18.1",
+    "mysql2": "^3.13.0",
+    "next": "^15.3.0",
+    "openai": "^4.85.4",
+    "pdf-parse": "^1.1.1",
+    "pdfjs-dist": "^5.1.91",
+    "prop-types": "^15.8.1",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-markdown": "^9.0.3",
+    "react-native-record-screen": "^0.6.2",
+    "react-toastify": "^11.0.5",
+    "react-webcam": "^7.2.0",
+    "uuid": "^11.0.4"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.1",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "15.1.4",
+    "postcss": "^8",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5"
+  },
+  "description": "This is a simple demonstration of more advanced, agentic patterns built on top of the Realtime API. In particular, this demonstrates: - Sequential agent handoffs according to a defined agent graph (taking inspiration from [OpenAI Swarm](https://github.com/openai/swarm)) - Background escalation to more intelligent models like o1-mini for high-stakes decisions - Prompting models to follow a state machine, for example to accurately collect things like names and phone numbers with confirmation character by character to authenticate a user.",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://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@github.com/aditi-almabay/InterviewAgent.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/aditi-almabay/InterviewAgent/issues"
+  },
+  "homepage": "https://github.com/aditi-almabay/InterviewAgent#readme"
+}
