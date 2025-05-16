@@ -1,4 +1,4 @@
-import { AgentConfig } from "@/app/types";
+import { AgentConfig } from "../../types";
 import { getLocalizedIntro } from "./select_language";
 
 const UI_UX = (selectedLanguage: string, experienceYears: number): AgentConfig => {

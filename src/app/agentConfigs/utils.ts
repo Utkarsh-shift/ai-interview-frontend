@@ -1,4 +1,4 @@
-import { AgentConfig, Tool } from "@/app/types";
+import { AgentConfig, Tool } from "../types";
 
 export function injectTransferTools(agentDefs: AgentConfig[]): AgentConfig[] { 
   agentDefs.forEach((agentDef) => {
