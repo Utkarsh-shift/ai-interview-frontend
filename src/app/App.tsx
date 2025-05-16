@@ -1724,21 +1724,6 @@ useEffect(() => {
 
 
 
-
-          <div style={{ border: "1px solid red", padding: "1rem", marginTop: "1rem" }}>
-  <h3>🧪 Debug Info</h3>
-  <p><strong>Selected Agent:</strong> {selectedAgentName}</p>
-  <pre style={{ whiteSpace: "pre-wrap" }}>
-    {JSON.stringify(
-      selectedAgentConfigSet?.find(agent => agent.name === selectedAgentName),
-      null,
-      2
-    )}
-  </pre>
-</div>
-
-
-
           {!isOnline && (
             <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 transition-opacity duration-300">
               <div className="bg-white p-6 rounded-lg shadow-lg text-center max-w-sm">
