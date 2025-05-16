@@ -2,7 +2,7 @@
 import React, { useEffect, useRef } from "react";
 
 import {start} from './persona_start';
-import { getFinalTranscript } from "@/app/contexts/TranscriptContext";
+import { getFinalTranscript } from "../contexts/TranscriptContext";
 
 declare global {
   interface Window {

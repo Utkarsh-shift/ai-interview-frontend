@@ -4,8 +4,8 @@
 import App from "./App";
 import { useSearchParams } from "next/navigation";
 import { useState, useEffect } from "react";
-import { TranscriptProvider } from "@/app/contexts/TranscriptContext";
-import { EventProvider } from "@/app/contexts/EventContext";
+import { TranscriptProvider } from "./contexts/TranscriptContext";
+import { EventProvider } from "./contexts/EventContext";
 
 export default function InterviewPageClient() {
   const searchParams = useSearchParams();

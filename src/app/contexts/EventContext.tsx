@@ -2,8 +2,8 @@
 
 import React, { createContext, useContext, useState, FC, PropsWithChildren } from "react";
 import { v4 as uuidv4 } from "uuid";
-import { LoggedEvent } from "@/app/types";
-import { saveLog } from "@/app/actions/logActions"; 
+import { LoggedEvent } from "../types";
+import { saveLog } from "../actions/logActions";
 
 type EventContextValue = {
   loggedEvents: LoggedEvent[];

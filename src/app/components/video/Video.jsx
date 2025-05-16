@@ -4,7 +4,7 @@ import html2canvas from 'html2canvas';
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import * as tf from "@tensorflow/tfjs";
 import "@tensorflow/tfjs-backend-webgl";
-import detectVideo  from "@/app/utils/detect1";
+import detectVideo from "../../utils/detect1";
 
 import hotkeys from "hotkeys-js";
 

@@ -2,8 +2,8 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
-import { TranscriptItem } from "@/app/types";
-import { useTranscript } from "@/app/contexts/TranscriptContext";
+import { TranscriptItem } from "../types";
+import { useTranscript } from "../contexts/TranscriptContext";
 
 export interface TranscriptProps {
   userText: string;

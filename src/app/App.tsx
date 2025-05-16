@@ -11,18 +11,18 @@ import { v4 as uuidv4 } from "uuid";
 import Image from "next/image";
 import Transcript from "./components/Transcript";
 import BottomToolbar from "./components/BottomToolbar";
-import { AgentConfig, SessionStatus } from "@/app/types";
-import { useTranscript } from "@/app/contexts/TranscriptContext";
-import { useEvent } from "@/app/contexts/EventContext";
+import { AgentConfig, SessionStatus } from "./types";
+import { useTranscript } from "./contexts/TranscriptContext";
+import { useEvent } from "./contexts/EventContext";
 import { useHandleServerEvent } from "./hooks/useHandleServerEvent";
 import { createRealtimeConnection } from "./lib/realtimeConnection";
-import { getAllAgentSets, defaultAgentSetKey } from "@/app/agentConfigs";
+import { getAllAgentSets, defaultAgentSetKey } from "./agentConfigs";
 import Video from "./components/video/Video";
 import hotkeys from "hotkeys-js";
 import IntroScreen from "./components/IntroScreen";
 import WebRTCComponent from "./components/web_Component";
-import { getGlobalSessionId } from "@/app/contexts/TranscriptContext";
-import getAgents from "@/app/agentConfigs/frontDeskAuthentication";
+import { getGlobalSessionId } from "./contexts/TranscriptContext";
+import getAgents from "./agentConfigs/frontDeskAuthentication";
 import { toast } from "react-toastify";
 
 type AppProps = {
