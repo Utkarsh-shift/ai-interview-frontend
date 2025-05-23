@@ -1,4 +1,4 @@
-
+// app/InterviewPageClient.tsx
 "use client";
 
 import App from "./App";
@@ -45,14 +45,15 @@ useEffect(() => {
       setErrorMessage("");
 
       try {
-        const response = await fetch("https://warm-cute-honeybee.ngrok-free.app/api/check-batch-id/", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`
-          },
-          body: JSON.stringify({ batch_id: batchId }),
-        });
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_NGROK_URL}/api/check-batch-id/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({ batch_id: batchId }),
+      });
+
 
         const data = await response.json();
 

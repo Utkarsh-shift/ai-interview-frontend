@@ -12,17 +12,17 @@ import Image from "next/image";
 import Transcript from "./components/Transcript";
 import BottomToolbar from "./components/BottomToolbar";
 import { AgentConfig, SessionStatus } from "./types";
-import { useTranscript } from "./contexts/TranscriptContext";
-import { useEvent } from "./contexts/EventContext";
+import { useTranscript } from "../app/contexts/TranscriptContext";
+import { useEvent } from "../app/contexts/EventContext";
 import { useHandleServerEvent } from "./hooks/useHandleServerEvent";
 import { createRealtimeConnection } from "./lib/realtimeConnection";
-import { getAllAgentSets, defaultAgentSetKey } from "./agentConfigs";
+import { getAllAgentSets, defaultAgentSetKey } from "../app/agentConfigs";
 import Video from "./components/video/Video";
 import hotkeys from "hotkeys-js";
 import IntroScreen from "./components/IntroScreen";
-import WebRTCComponent from "./components/web_Component";
-import { getGlobalSessionId } from "./contexts/TranscriptContext";
-import getAgents from "./agentConfigs/frontDeskAuthentication";
+// import WebRTCComponent from "./components/web_Component";
+import { getGlobalSessionId } from "../app/contexts/TranscriptContext";
+import getAgents from "../app/agentConfigs/frontDeskAuthentication";
 import { toast } from "react-toastify";
 
 type AppProps = {
@@ -137,21 +137,6 @@ function App({ batch_id }: AppProps) {
     return () => iframe?.removeEventListener("load", tryStart);
   }, []);
 
-  /////////////////////////////////////////////////////////////////
-
-
-  // const handleTalkButtonDown = () => {
-  //   if (sessionStatus !== "CONNECTED" || dataChannel?.readyState !== "open")
-  //     return;
-  //   cancelAssistantSpeech();
-
-  //   setIsPTTUserSpeaking(true);
-  //   sendClientEvent({ type: "input_audio_buffer.clear" }, "clear PTT buffer");
-  // };
-
-
-  ///////////////////////////////////////////////////////////////////
-
   const [showPermissionWarning, setShowPermissionWarning] = useState(false);
   const [permissionWarningMessage, setPermissionWarningMessage] = useState("");
   const permissionMonitorIntervalRef = useRef<NodeJS.Timeout | null>(null)
@@ -257,13 +242,15 @@ function App({ batch_id }: AppProps) {
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    if (!audioElementRef.current) {
-      const audio = document.createElement("audio");
-      audio.autoplay = false;
-      audio.muted = true;
-      audio.volume = 0;
-      audioElementRef.current = audio;
-    }
+if (!audioElementRef.current) {
+  const audio = document.createElement("audio");
+  audio.autoplay = true;
+  audio.muted = false;
+  audio.volume = 1;
+  document.body.appendChild(audio); // ensure it's in DOM for autoplay policies
+  audioElementRef.current = audio;
+}
+
   }, []);
 
 
@@ -1070,23 +1057,6 @@ useEffect(() => {
     }
   };
   
-  ////////////////////////////////////////////////////////////////////////////////////////////////////////
-  //////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-
-
-
-
-
-
-
-
-
-  ////////////////////////////////////////////////////////////////////////////////////////////
-  ///////////////////////////////////////////////////////////////////////////////////////////
 
   const disconnectFromRealtime = () => {
     if (pcRef.current) {
@@ -1137,91 +1107,6 @@ useEffect(() => {
     }
   };
 
-
-//   const updateSession = (shouldTriggerResponse: boolean = false) => {
-//     sendClientEvent(
-//       { type: "input_audio_buffer.clear" },
-//       "clear audio buffer on session update"
-//     );
-
-//     const currentAgent = selectedAgentConfigSet?.find(
-//       (a) => a.name === selectedAgentName
-//     );
-
-//     const turnDetection = isPTTActive
-//       ? null
-//       : {
-//         type: "server_vad",
-//         threshold: 0.5,
-//         prefix_padding_ms: 300,
-//         silence_duration_ms: 300,
-//         create_response: true,
-//       };
-
-//     const instructions = currentAgent?.instructions || "";
-
-//     const tools = currentAgent?.tools || [];
-
-//     const sessionUpdateEvent = {
-//       type: "session.update",
-//       session: {
-//         modalities: ["text", "audio"],
-//         instructions,
-//         voice: "coral",
-//         input_audio_format: "pcm16",
-//         output_audio_format: "pcm16",
-//         input_audio_transcription: { model: "whisper-1" },
-//         turn_detection: turnDetection,
-//         tools,
-//       },
-//     };
-
-//     sendClientEvent(sessionUpdateEvent);
-
-//     // TypeScript: GET student data by batch_id
-// // write the code here to get the student data by batch_id
-
-// const token = localStorage.getItem("authToken") || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjo0OTAwMTEzOTM0LCJpYXQiOjE3NDY1MTM5MzQsImp0aSI6IjYwY2JiM2Y3ODdmZjQ3ZTJiZmVlNjMwNzQyNTNjZmYxIiwidXNlcl9pZCI6Mn0.STMAcG0Z3o4fpTXucNfnsPO9iQgmyqkNGqUs8gRE9HU"; // Replace with real token logic
-
-// try {
-//   const response = await fetch(`https://warm-cute-honeybee.ngrok-free.app/api/get-student-data/?batch_id=${batch_id}`, {
-//     method: "GET",
-//     headers: {
-//       "Authorization": `Bearer ${token}`,
-//       "Content-Type": "application/json"
-//     }
-//   });
-
-//   if (!response.ok) {
-//     throw new Error(`Failed to fetch student data: ${response.status}`);
-//   }
-
-//   const studentData = await response.json();
-
-//   const {
-//     student_name,
-//     education,
-//     skills,
-//     student_experience,
-//     certfication,
-//     projects,
-//     selected_language,
-//     agent,
-//     job_id
-//   } = studentData;
-
-//   // 🧠 Step 2: Build dynamic message
-//   const startoo = `Hi I am  ${student_name}, let's begin my interview for the role ${job_id}. I studied at ${education} and worked as ${student_experience}. 
-// I am skilled in ${skills}. Some of my key certifications are ${certfication.slice(0, 3).join(", ")}. 
-// I have also completed projects like ${projects.slice(0, 3).join(", ")}. Let's get started!`;
-
-//       //append the response in the end of this string
-//     console.log(startoo)
-
-//     if (shouldTriggerResponse) {
-//       sendSimulatedUserMessage(` ${startoo}`);
-//     }
-//   }
 
 const updateSession = async () => {
 
@@ -1282,7 +1167,7 @@ useEffect(() => {
     console.log("Token available:", token);
   }
 }, [token]);
-console.log("********************************",batch_id);
+
 
 
 useEffect(() => {
@@ -1292,18 +1177,19 @@ useEffect(() => {
         localStorage.getItem("authToken") || process.env.NEXT_PUBLIC_TOKEN;
       if (!token) throw new Error("No token");
 
-      const response = await fetch(
-        "https://warm-cute-honeybee.ngrok-free.app/api/get-student-data/",
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ batch_id: batch_id }),
-        }
-      );
-      
+const response = await fetch(
+  `${process.env.NEXT_PUBLIC_BACKEND_NGROK_URL}/api/get-student-data/`,
+  {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ batch_id: batch_id }),
+  }
+);
+
+
       if (!response.ok) throw new Error("Failed to fetch student data");
 
       const studentData: StudentData = await response.json();
@@ -1452,15 +1338,14 @@ useEffect(() => {
   }, [isPTTActive]);
 
 
-  // ******************************************************************************* //
+
   useEffect(() => {
     const detectMultipleMonitors = () => {
       const screenX = window.screenX || window.screenLeft;
       const screenWidth = window.screen.width;
-      // const screenHeight = window.screen.height;
-  
+
       const windowWidth = window.outerWidth;
-      // const windowHeight = window.outerHeight;
+
   
      
   
@@ -1480,7 +1365,7 @@ useEffect(() => {
     return () => window.removeEventListener("resize", detectMultipleMonitors);
   }, []);
   
-  // ******************************************************************************* //
+
 
 
   useEffect(() => {
@@ -1680,10 +1565,10 @@ useEffect(() => {
             <div className="main_sec">
               <div className="upper_sec">
                 <div className="model_comp">
-                  <WebRTCComponent />
+                  {/* <WebRTCComponent /> */}
                 </div>
                 <div className="video_sec">
-                  <div className="video_recor w-[300px] fixed right-0 top-16 h-[calc(100vh-112px)] flex flex-col items-center px-2 z-50">
+                  <div className="video_recor">
                     <Video
                       sessionId={openaiId}
                       cameraStream={cameraStreamRef.current}
@@ -1691,7 +1576,6 @@ useEffect(() => {
                     />
                   </div>
                 </div>
-              </div>
               <div className="transcript">
                 <Transcript
                   userText={userText}
@@ -1701,6 +1585,7 @@ useEffect(() => {
                 />
 
                 <Events isExpanded={isEventsPaneExpanded} />
+              </div>
               </div>
             </div>
           </div>
@@ -1723,7 +1608,6 @@ useEffect(() => {
           )}
 
 
-
           {!isOnline && (
             <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 transition-opacity duration-300">
               <div className="bg-white p-6 rounded-lg shadow-lg text-center max-w-sm">
@@ -1734,13 +1618,6 @@ useEffect(() => {
               </div>
             </div>
           )}
-
-          {/* {isOnline && (
-            <div className="fixed bottom-4 right-4 bg-green-600 text-white px-4 py-2 rounded-lg shadow-lg transition-opacity duration-300">
-              Back online! Your connection is restored.
-            </div>
-          )} */}
-
 
           {showExitWarning && (
             <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">

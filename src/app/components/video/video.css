@@ -31,21 +31,21 @@
 .content > canvas {
   display: block;
   width: 100%;
-  max-width: 508px; /* Ensure both have the same width */
-  max-height: 305px; /* Ensure both have the same height */
+  /* max-width: 508px;  */
+  /* max-height: 305px;  */
   border-radius: 10px;
   position: relative; /* Ensure correct positioning */
 }
 
 .content {
-  position: fixed;
+  /* position: fixed; */
   top: 80px; /* Distance from the top */
   right: 20px; /* Distance from the right */
   display: flex;
   flex-direction: column; /* Stack video and buttons vertically */
   align-items: center;
   z-index: 1000; /* Ensure it's above other elements */
-  width: 600px;
+  /* width: 600px; */
 }
 
 

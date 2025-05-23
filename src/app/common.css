@@ -111,11 +111,11 @@
 
   .ptt-button {
     padding: 14px 32px;
-    border-radius: 999px;
-    background-color: #2563eb; /* blue-600 */
+    border-radius: 20px;
+    background-color: #FBAB23; /* blue-600 */
     color: white;
     font-weight: 600;
-    font-size: 1rem;
+    font-size: 18px;
     letter-spacing: 0.5px;
     box-shadow: 0 4px 16px rgba(37, 99, 235, 0.3);
     border: none;
@@ -124,8 +124,10 @@
   }
   
   .ptt-button:hover {
-    background-color: #1e40af; /* blue-800 */
+    background-color: #fff; /* blue-800 */
     transform: scale(1.05);
+    color: #FBAB23;
+    border-color: #FBAB23;
   }
   
   .ptt-button.active {

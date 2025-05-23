@@ -196,7 +196,7 @@ button:hover {
   align-items: flex-start;
   gap: 20px;
   width: 100%;
-  margin: 500px 0;
+  /* margin: 500px 0; */
 }
  
 .model-box, .camera-box {
@@ -250,11 +250,10 @@ button:hover {
   position: fixed;
   bottom: 0;
   left: 0;
-  right: 0px;
-  height: 19vh;
+  right: 0px; 
   background: rgba(236, 232, 232, 0);
   padding: 14px 16px;
-  /* z-index: 997; */
+  
   overflow-y: auto;
   border-radius: 16px 0 0 0;
   box-sizing: border-box;
@@ -304,8 +303,8 @@ button:hover {
 }
  
 .transscpt_p.assistant {
-  background-color: #0f172a;
-  color: #f1f5f9;
+  background: rgba(255, 255, 255, 0.80);
+  color: #000;
   border-radius: 16px;
   padding: 22px 12px;
   box-shadow: 0 4px 20px rgba(0,0,0,0.3);

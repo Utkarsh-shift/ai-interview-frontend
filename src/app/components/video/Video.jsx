@@ -108,30 +108,30 @@ const Video = ({
     };
   }, []);
 
-  // useEffect(() => {
-  //   document.addEventListener("fullscreenchange", checkFullscreen);
-  //   return () => document.removeEventListener("fullscreenchange", checkFullscreen);
-  // }, [checkFullscreen]);
+  useEffect(() => {
+    document.addEventListener("fullscreenchange", checkFullscreen);
+    return () => document.removeEventListener("fullscreenchange", checkFullscreen);
+  }, [checkFullscreen]);
 
-  // useEffect(() => {
-  //   const handleContextMenu = (e) => e.preventDefault();
-  //   const handleKeyDown = (e) => {
-  //     if (
-  //       e.keyCode === 123 ||
-  //       (e.ctrlKey && e.shiftKey && [73, 74].includes(e.keyCode)) ||
-  //       (e.ctrlKey && e.keyCode === 85)
-  //     ) {
-  //       e.preventDefault();
-  //     }
-  //   };
-  //   document.addEventListener("contextmenu", handleContextMenu);
-  //   document.addEventListener("keydown", handleKeyDown);
+  useEffect(() => {
+    const handleContextMenu = (e) => e.preventDefault();
+    const handleKeyDown = (e) => {
+      if (
+        e.keyCode === 123 ||
+        (e.ctrlKey && e.shiftKey && [73, 74].includes(e.keyCode)) ||
+        (e.ctrlKey && e.keyCode === 85)
+      ) {
+        e.preventDefault();
+      }
+    };
+    document.addEventListener("contextmenu", handleContextMenu);
+    document.addEventListener("keydown", handleKeyDown);
 
-  //   return () => {
-  //     document.removeEventListener("contextmenu", handleContextMenu);
-  //     document.removeEventListener("keydown", handleKeyDown);
-  //   };
-  // }, []);
+    return () => {
+      document.removeEventListener("contextmenu", handleContextMenu);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
 
   const requestFullScreen = useCallback(() => {
     const el = document.documentElement;
@@ -179,30 +179,23 @@ const Video = ({
   return (
     <div className="content">
       {cameraError && <p className="error-message">Camera Error: {cameraError}</p>}
-      <video
-  autoPlay
-  muted
-  ref={videoRef}
-  style={{
-    width: "100%",
-    height: "auto",
-    borderRadius: "12px",
-    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.3)",
-  }}
-/>
-
-<canvas
-      width={model.inputShape[1]}
-      height={model.inputShape[2]}
+       <video
+      autoPlay
+      muted
+      ref={videoRef}
+      className="w-full h-full object-cover rounded-md"
+      style={{height: '100vh',width: '100vw'}}
+    />
+    <canvas
       ref={canvasRef}
       style={{
-        width: "100%",
-        height: "100%",
-        position: "absolute",
+        width: '100%',
+        height: '100%',
+        position: 'absolute',
         top: 0,
         left: 0,
         zIndex: 2,
-        pointerEvents: "none",
+        pointerEvents: 'none',
       }}
     />
     </div>

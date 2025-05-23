@@ -10,11 +10,9 @@ import React, {
 import { v4 as uuidv4 } from "uuid";
 import { TranscriptItem } from "../types";
 
-
 if (typeof window !== "undefined") {
   (window as any).shouldStopUploading = true;
 }
-
 
 declare global {
   interface Window {
@@ -22,36 +20,43 @@ declare global {
   }
 }
 
-
 type TranscriptContextValue = {
   transcriptItems: TranscriptItem[];
-  addTranscriptMessage: (itemId: string, role: "user" | "assistant", text: string, hidden?: boolean) => void;
-  updateTranscriptMessage: (itemId: string, text: string, isDelta: boolean) => void;
-  addTranscriptBreadcrumb: (title: string, data?: Record<string, any>) => void;
+  addTranscriptMessage: (
+    itemId: string,
+    role: "user" | "assistant",
+    text: string,
+    hidden?: boolean
+  ) => void;
+  updateTranscriptMessage: (
+    itemId: string,
+    text: string,
+    isDelta: boolean
+  ) => void;
+  addTranscriptBreadcrumb: (
+    title: string,
+    data?: Record<string, any>
+  ) => void;
   toggleTranscriptItemExpand: (itemId: string) => void;
-  updateTranscriptItemStatus: (itemId: string, newStatus: "IN_PROGRESS" | "DONE") => void;
+  updateTranscriptItemStatus: (
+    itemId: string,
+    newStatus: "IN_PROGRESS" | "DONE"
+  ) => void;
 };
 
-let finalTranscriptSnapshot = ""; 
+let finalTranscriptSnapshot = "";
 
-export const getFinalTranscript = () => finalTranscriptSnapshot; 
+export const getFinalTranscript = () => finalTranscriptSnapshot;
 
-
-
-
-
-const TranscriptContext = createContext<TranscriptContextValue | undefined>(undefined);
-
-
+const TranscriptContext = createContext<TranscriptContextValue | undefined>(
+  undefined
+);
 
 export const TranscriptProvider: FC<PropsWithChildren> = ({ children }) => {
   const [transcriptItems, setTranscriptItems] = useState<TranscriptItem[]>([]);
-  const fullTranscriptRef = useRef<string>(""); 
-  const MERGE_API_TOKEN = process.env.NEXT_PUBLIC_TOKEN;
+  const fullTranscriptRef = useRef<string>("");
 
-
-  
-  const newTimestampPretty = () =>
+  const newTimestampPretty = (): string =>
     new Date().toLocaleTimeString([], {
       hour12: true,
       hour: "numeric",
@@ -59,9 +64,17 @@ export const TranscriptProvider: FC<PropsWithChildren> = ({ children }) => {
       second: "2-digit",
     });
 
-  const addTranscriptMessage: TranscriptContextValue["addTranscriptMessage"] = (itemId, role, text = "", isHidden = false) => {
+  const addTranscriptMessage = (
+    itemId: string,
+    role: "user" | "assistant",
+    text: string = "",
+    isHidden: boolean = false
+  ) => {
     setTranscriptItems((prev) => {
-      if (prev.some((log) => log.itemId === itemId && log.type === "MESSAGE")) return prev;
+      if (
+        prev.some((log) => log.itemId === itemId && log.type === "MESSAGE")
+      )
+        return prev;
       return [
         ...prev,
         {
@@ -79,157 +92,146 @@ export const TranscriptProvider: FC<PropsWithChildren> = ({ children }) => {
     });
   };
 
-  const updateTranscriptMessage: TranscriptContextValue["updateTranscriptMessage"] = (
-    itemId,
-    newText,
-    append = false
+  const updateTranscriptMessage = (
+    itemId: string,
+    newText: string,
+    append: boolean = false
   ) => {
-    setTranscriptItems((prev) => {
-      
-
-      return prev.map((item) =>
+    setTranscriptItems((prev) =>
+      prev.map((item) =>
         item.itemId === itemId && item.type === "MESSAGE"
           ? {
               ...item,
               title: append ? (item.title ?? "") + newText : newText,
             }
           : item
-      );
-    });
+      )
+    );
   };
-  
 
   const loggedItemIds = useRef<Set<string>>(new Set());
 
-  const updateTranscriptItemStatus: TranscriptContextValue["updateTranscriptItemStatus"] = (
-    itemId,
-    newStatus
-  ) => {
-    setTranscriptItems((prev) => {
-      let shouldLog = false;
-  
-      const updated = prev.map((item) => {
-        if (item.itemId === itemId && newStatus === "DONE" && item.status !== "DONE") {
-          if (item.role === "assistant" && !loggedItemIds.current.has(itemId)) {
-            shouldLog = true;
-            loggedItemIds.current.add(itemId);
-          }
-          return { ...item, status: newStatus };
-        }
-        return item;
-      });
-  
-      if (shouldLog) {
-        const assistantMessages = updated.filter(
-          (item) => item.type === "MESSAGE" && item.role === "assistant" && !item.isHidden
-        );
-  
-        const lastAssistant = assistantMessages[assistantMessages.length - 1];
-        const messageOnly = lastAssistant?.title?.replace(/^assistant:\s*/i, "").trim() || "";
-  
-        finalTranscriptSnapshot = messageOnly;
-        fullTranscriptRef.current = messageOnly;
-  
-        console.log(" Final Assistant Message:", messageOnly);
-  
-        
-        if (window?.sessionIdGlobal && messageOnly) {
-          fetch("https://neat-funny-coyote.ngrok-free.app/human", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              text: messageOnly,
-              type: "echo",
-              interrupt: true,
-              sessionid: window.sessionIdGlobal,
-            }),
-          }).catch((err) => console.error(" Failed to call /human:", err));
-        }
-  
-        
-        const lowerMessage = messageOnly.toLowerCase();
-        if (
-          lowerMessage.includes("this concludes our interview") ||
-          lowerMessage.includes("interview session has been ended") ||
-          lowerMessage.includes("thank you for your time") ||
-          lowerMessage.includes("feel free to reach out. Have a great day!") 
-        ) {
-          
-          (window as any).shouldStopUploading = true; 
+const updateTranscriptItemStatus = (
+  itemId: string,
+  newStatus: "IN_PROGRESS" | "DONE"
+) => {
+  setTranscriptItems((prev) => {
+    let shouldLog = false;
 
-           fetch("/api/store_transcript", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ transcriptItems:updated}),
-          })
-            .then((res) => res.json())
-            .then(() => {
-            })
-            .catch((err) => {
-              console.error(" Error saving transcript:", err);
-              
+    const updated = prev.map((item) => {
+      if (
+        item.itemId === itemId &&
+        newStatus === "DONE" &&
+        item.status !== "DONE"
+      ) {
+        if (item.role === "assistant" && !loggedItemIds.current.has(itemId)) {
+          shouldLog = true;
+          loggedItemIds.current.add(itemId);
+        }
+        return { ...item, status: newStatus };
+      }
+      return item;
+    });
+
+    if (shouldLog) {
+      const assistantMessages = updated.filter(
+        (item) =>
+          item.type === "MESSAGE" &&
+          item.role === "assistant" &&
+          !item.isHidden
+      );
+
+      const lastAssistant =
+        assistantMessages[assistantMessages.length - 1];
+      const messageOnly =
+        lastAssistant?.title?.replace(/^assistant:\s*/i, "").trim() || "";
+
+      finalTranscriptSnapshot = messageOnly;
+      fullTranscriptRef.current = messageOnly;
+
+      console.log(" Final Assistant Message:", messageOnly);
+
+      const lowerMessage = messageOnly.toLowerCase();
+      const shouldTriggerExit =
+        lowerMessage.includes("this concludes our interview") ||
+        lowerMessage.includes("interview session has been ended") ||
+        lowerMessage.includes("thank you for your time") ||
+        lowerMessage.includes("feel free to reach out. have a great day!");
+
+      if (shouldTriggerExit) {
+        (window as any).shouldStopUploading = true;
+
+        const saveTranscriptAndExit = async () => {
+          try {
+            console.log(" Saving transcript items:", updated);
+            const res = await fetch("/api/store_transcript", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ transcriptItems: updated }),
             });
-  
 
-          const match = updated[0]?.title?.match(/session\.id:\s(\S+)/);
+            if (!res.ok) {
+              const text = await res.text();
+              console.error(" Failed to store transcript:", text);
+            } else {
+              console.log(" Transcript stored successfully");
+            }
+          } catch (err) {
+            console.error("Error saving transcript:", err);
+          }
+
+          const match = updated.find((item) =>
+            item.title?.includes("session.id:")
+          )?.title?.match(/session\.id:\s*(\S+)/);
           const openaiId = match?.[1];
 
+          if (openaiId) {
+            const NGROK_URL = process.env.NEXT_PUBLIC_BACKEND_NGROK_URL;
+            const token = process.env.NEXT_PUBLIC_TOKEN;
 
-            if (openaiId) {
-              if (!MERGE_API_TOKEN) {
-                console.warn("🚨 MERGE_API_TOKEN is missing!");
-              }
-
-              console.log("Sending session to Flask:", openaiId);
-              fetch("https://warm-cute-honeybee.ngrok-free.app/api/merge_videos/", {
+            try {
+              const res = await fetch(`${NGROK_URL}/api/merge_videos/`, {
                 method: "POST",
                 headers: {
                   "Content-Type": "application/json",
-                  "Authorization": `Bearer ${MERGE_API_TOKEN}`,
+                  Authorization: `Bearer ${token}`,
                 },
                 body: JSON.stringify({ session_id: openaiId }),
-              })
-                .then((res) => {
-                  if (!res.ok) {
-                    throw new Error(`HTTP error! Status: ${res.status}`);
-                  }
-                  return res.json();
-                })
-                .then((data) => {
-                  console.log("✅ merge_videos response:", data);
-                })
-                .catch((err) => {
-                  console.error("❌ Error sending session to Flask:", err);
-                });
+              });
+
+              const data = await res.json();
+              console.log("merge_videos response:", data);
+            } catch (err) {
+              console.error(" Error calling merge_videos:", err);
+            }
+          } else {
+            console.warn(" openaiId not found — skipping merge call");
           }
 
-          
-                         
-          
-            window.dispatchEvent(
-              new CustomEvent("interviewConcluded", {
-                detail: {
-                  summary: messageOnly,
-                  closing_statement: messageOnly,
-                },
-              })
-            );
-            
-            setTimeout(() => {
-              if (typeof window !== "undefined") {
-                window.location.href = "/feedback";
-              }
-            }, 100);
-        }
-      }
-  
-      return updated;
-    });
-  };
-  
+          window.dispatchEvent(
+            new CustomEvent("interviewConcluded", {
+              detail: {
+                summary: messageOnly,
+                closing_statement: messageOnly,
+              },
+            })
+          );
 
-  
-  const addTranscriptBreadcrumb = (title: string, data?: Record<string, any>) => {
+          window.location.href = "/feedback";
+        };
+        void saveTranscriptAndExit();
+      }
+    }
+
+    return updated;
+  });
+};
+
+
+  const addTranscriptBreadcrumb = (
+    title: string,
+    data?: Record<string, any>
+  ) => {
     setTranscriptItems((prev) => [
       ...prev,
       {
@@ -277,6 +279,7 @@ export function useTranscript() {
   }
   return context;
 }
-  export const getGlobalSessionId = () => {
-    return typeof window !== "undefined" ? window.sessionIdGlobal : undefined;
-  };
+
+export const getGlobalSessionId = (): number | undefined => {
+  return typeof window !== "undefined" ? window.sessionIdGlobal : undefined;
+};
