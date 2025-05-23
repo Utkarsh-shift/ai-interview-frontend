@@ -48,8 +48,8 @@ useEffect(() => {
         const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_NGROK_URL}/api/check-batch-id/`, {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
+          "Content-Type": "application/json"
+          // "Authorization": `Bearer ${token}`
         },
         body: JSON.stringify({ batch_id: batchId }),
       });
