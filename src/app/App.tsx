@@ -1494,13 +1494,13 @@ const response = await fetch(
     if (isSuccess) return;
     const sessionId = getGlobalSessionId();
     
-    if (sessionId && openaiId  && batch_id) {
+    if (openaiId  && batch_id) {
   
       fetch("/api/Lipsync_session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          sessionId: sessionId,
+          sessionId: '0',
           openai_session_id: openaiId,
           batch_id : batch_id,
         }),
