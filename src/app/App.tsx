@@ -20,7 +20,6 @@ import { getAllAgentSets, defaultAgentSetKey } from "../app/agentConfigs";
 import Video from "./components/video/Video";
 import hotkeys from "hotkeys-js";
 import IntroScreen from "./components/IntroScreen";
-// import WebRTCComponent from "./components/web_Component";
 import { getGlobalSessionId } from "../app/contexts/TranscriptContext";
 import getAgents from "../app/agentConfigs/frontDeskAuthentication";
 import { toast } from "react-toastify";
@@ -52,6 +51,8 @@ interface StudentData {
 }
 
 function App({ batch_id }: AppProps) {
+
+
   const [permissions, setPermissions] = useState({
     camera: false,
     mic: false,
@@ -427,17 +428,16 @@ useEffect(() => {
     selectedAgentConfigSet &&
     selectedAgentName
   ) {
-    updateSession();
+    updateSession(true);
   }
 }, [selectedAgentConfigSet, selectedAgentName, sessionStatus]);
-
 
   useEffect(() => {
     if (sessionStatus === "CONNECTED") {
       console.log(
         `updatingSession, isPTTACtive=${isPTTActive} sessionStatus=${sessionStatus}`
       );
-      updateSession();
+      updateSession(true);
     }
   }, [isPTTActive]);
 
@@ -1078,7 +1078,7 @@ useEffect(() => {
   };
 
 
-  const sendSimulatedUserMessage = async (text: string) => {
+const sendSimulatedUserMessage = async (text: string) => {
     const id = uuidv4().slice(0, 32);
 
     try {
@@ -1108,7 +1108,8 @@ useEffect(() => {
   };
 
 
-const updateSession = async () => {
+
+const updateSession = async (shouldTriggerResponse: boolean = false) => {
 
   sendClientEvent(
     { type: "input_audio_buffer.clear" },
@@ -1148,8 +1149,53 @@ const updateSession = async () => {
 
   sendClientEvent(sessionUpdateEvent);
 
-};
+  const token =
+    localStorage.getItem("authToken") || process.env.NEXT_PUBLIC_TOKEN;
 
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_NGROK_URL}/api/get-student-data/`,
+      {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ batch_id: batch_id }),
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch student data: ${response.status}`);
+    }
+
+    const studentData = await response.json();
+
+    const {
+      student_name,
+      education,
+      skills,
+      student_experience,
+      certfication,
+      projects,
+      job_id,
+    } = studentData;
+
+    const startoo = `Hi I am ${student_name}, let's begin my interview for the role ${job_id}. I studied at ${education} and worked as ${student_experience}. 
+I am skilled in ${skills}. Some of my key certifications are ${certfication
+      .slice(0, 3)
+      .join(", ")}. 
+I have also completed projects like ${projects.slice(0, 3).join(", ")}. Let's get started!`;
+
+    console.log("Constructed intro message:", startoo);
+
+    if (shouldTriggerResponse) {
+      sendSimulatedUserMessage(startoo);
+    }
+  } catch (error) {
+    console.error("Error fetching student data:", error);
+  }
+};
  
 
 
@@ -1217,11 +1263,6 @@ const response = await fetch(
 
   loadStudentAgent();
 }, []);
-
-
-
-
-
 
 
 

@@ -5,9 +5,8 @@ import { useTranscript } from "../contexts/TranscriptContext";
 import { useEvent } from "../contexts/EventContext";
 import { useRef } from "react";
 
-
 export interface UseHandleServerEventParams {
-  setSessionStatus: (status: SessionStatus) => void; 
+  setSessionStatus: (status: SessionStatus) => void;
   selectedAgentName: string;
   selectedAgentConfigSet: AgentConfig[] | null;
   sendClientEvent: (eventObj: any, eventNameSuffix?: string) => void;
@@ -41,16 +40,61 @@ export function useHandleServerEvent({
       (a) => a.name === selectedAgentName
     );
 
+    // Handle concludeInterview separately to avoid transcript logging
+    if (functionCallParams.name === "concludeInterview") {
+      try {
+        const response = await fetch("/api/store_transcript", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ transcriptItems }),
+        });
+
+        if (!response.ok) {
+          const errText = await response.text();
+          console.error("Failed to store transcript:", errText);
+        } else {
+          console.log("Transcript stored successfully.");
+        }
+
+        window.dispatchEvent(
+          new CustomEvent("interviewConcluded", {
+            detail: {
+              summary: args.summary,
+              closing_statement: args.closing_statement,
+            },
+          })
+        );
+
+        sendClientEvent({
+          type: "conversation.item.create",
+          item: {
+            type: "function_call_output",
+            call_id: functionCallParams.call_id,
+            output: JSON.stringify({ success: true }),
+          },
+        });
+
+        sendClientEvent({ type: "response.create" });
+      } catch (err) {
+        console.error("Error during interview conclusion:", err);
+      }
+      return;
+    }
+
+    // Normal function call logic with breadcrumbs
     addTranscriptBreadcrumb(`function call: ${functionCallParams.name}`, args);
 
     if (currentAgent?.toolLogic?.[functionCallParams.name]) {
       const fn = currentAgent.toolLogic[functionCallParams.name];
       const fnResult = await fn(args, transcriptItems);
+
       addTranscriptBreadcrumb(
         `function call result: ${functionCallParams.name}`,
         fnResult
       );
+
       console.log("The function call result is: ", fnResult);
+
       sendClientEvent({
         type: "conversation.item.create",
         item: {
@@ -62,30 +106,6 @@ export function useHandleServerEvent({
 
       sendClientEvent({ type: "response.create" });
     }
-    
-    
-    // else if (functionCallParams.name === "concludeInterview") {
-    //   const response = await fetch("/api/store_transcript", {
-    //     method: "POST",
-    //     headers: { "Content-Type": "application/json" },
-    //     body: JSON.stringify({ transcriptItems }),
-    //   });
-    //   const result = await response.json();
-    //   window.dispatchEvent(
-    //     new CustomEvent("interviewConcluded", {
-    //       detail: { summary: args.summary, closing_statement: args.closing_statement },
-    //     })
-    //   );
-
-    //   sendClientEvent({
-    //     type: "conversation.item.create",
-    //     item: {
-    //       type: "function_call_output",
-    //       call_id: functionCallParams.call_id,
-    //       output: JSON.stringify({ success: true }),
-    //     },
-    //   });
-    // }
   };
 
   const handleServerEvent = async (serverEvent: ServerEvent) => {
@@ -97,17 +117,19 @@ export function useHandleServerEvent({
     ) {
       const text =
         serverEvent.item?.content?.[0]?.text?.toLowerCase()?.trim() || "";
-      if (
+      const isConcludeMessage =
         text.includes("thank you for your time") &&
         (text.includes("this concludes our interview") ||
-          text.includes("interview session has been ended"))
-      ) {
-        
+          text.includes("interview session has been ended"));
+
+      if (isConcludeMessage) {
+        // Optionally suppress the assistant message or log exit trigger here
+        console.log("Detected interview conclusion message from assistant.");
+        return;
       }
     }
 
     switch (serverEvent.type) {
-      
       case "session.created": {
         if (serverEvent.session?.id) {
           setSessionStatus("CONNECTED");
@@ -115,7 +137,6 @@ export function useHandleServerEvent({
             `session.id: ${serverEvent.session.id}\nStarted at: ${new Date().toLocaleString()}`
           );
         }
-
         break;
       }
 
