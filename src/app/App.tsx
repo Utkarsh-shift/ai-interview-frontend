@@ -20,7 +20,6 @@ import { getAllAgentSets, defaultAgentSetKey } from "../app/agentConfigs";
 import Video from "./components/video/Video";
 import hotkeys from "hotkeys-js";
 import IntroScreen from "./components/IntroScreen";
-import { getGlobalSessionId } from "../app/contexts/TranscriptContext";
 import getAgents from "../app/agentConfigs/frontDeskAuthentication";
 import { toast } from "react-toastify";
 
