@@ -95,7 +95,8 @@ public/uploads/
 public/screen_uploads/
 public/**/*.mp4
 public/**/*.webm
-
+public/yolov8n_web_model/*
+public/yolov8n_web_model/
 # Misc
 *.tmp
 *.bak
