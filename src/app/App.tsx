@@ -58,6 +58,7 @@ const [introMessage, setIntroMessage] = useState<string | null>(null);
     mic: false,
     screen: false
   });
+  
   const [showIntro, setShowIntro] = useState(true);
   const searchParams = useSearchParams();
   const [token, setToken] = useState("");
@@ -1208,6 +1209,7 @@ const updateSession = async (shouldTriggerResponse: boolean = false) => {
     if (!response.ok) throw new Error("Failed to fetch student data");
 
     const studentData = await response.json();
+    localStorage.setItem("studentData", JSON.stringify(studentData));
     const { student_name } = studentData;
 
     const message = `Hi I am ${student_name}, let's begin my interview`;
@@ -1280,12 +1282,12 @@ const response = await fetch(
 
       const selectedAgent =
         agentsMap[agentKeyFromAPI as keyof typeof agentsMap];
-      console.log("✅ Selected agent:", selectedAgent);
+      console.log(" Selected agent:", selectedAgent);
 
       setSelectedAgentName(selectedAgent.name);
       setSelectedAgentConfigSet(agentsList);
     } catch (err) {
-      console.error("❌ Agent assignment failed:", err);
+      console.error(" Agent assignment failed:", err);
     }
   };
 

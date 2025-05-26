@@ -1,16 +1,35 @@
 import { AgentConfig } from "../../types";
 import { getLocalizedIntro } from "./select_language";
 
-const Generic_Prompt = (
-  selectedLanguage: string,
-  title: string,
-  jobDescription: string,
-  skills: string,
-  behavioralSkills: string[],
-  industry: string,
-  minExperience: string,
-  maxExperience: string
-): AgentConfig => {
+const Generic_Agent = async (selectedLanguage: string): Promise<AgentConfig> =>{
+  const storedJobId = localStorage.getItem("job_id");
+  const token = localStorage.getItem("authToken");
+
+  
+  if (!storedJobId) throw new Error("Missing job ID in localStorage");
+  if (!token) throw new Error("Missing auth token in localStorage");
+
+
+  const response = localStorage.getItem("studentData");
+
+  console.log("studentData", response)
+
+
+  const studentData = response ? JSON.parse(response) : null;
+  const jobData = studentData?.job_details || {};
+  if (!jobData) throw new Error("No job data found in localStorage");
+  console.log("Job data:", jobData);
+
+  const {
+    title,
+    industry,
+    minExperience,
+    maxExperience,
+    jobDescription,
+    technical_skills,
+    behavioural_skills,
+  } = jobData;
+
   const localizedIntro = getLocalizedIntro(selectedLanguage);
 
   return {
@@ -97,7 +116,7 @@ Please briefly summarize your:
 
 Generate a short, 7–10 minutes problem based on candidate’s skills or projects:
 
-    Problem must be based on: ${skills}, ${jobDescription}, ${title}
+    Problem must be based on: ${technical_skills}, ${behavioural_skills}, ${jobDescription}, ${title}
 
     Format:
 
@@ -140,7 +159,7 @@ Ask one of the following:
 
  Step 5: Technical Question (Q4)
 
-Ask a new technical question from a different area of ${skills}
+Ask a new technical question from a different area of ${technical_skills}, ${behavioural_skills}
 <!-- difficulty: auto -->
 
     "Got it. Let’s keep going. Moving on to next question."
@@ -149,7 +168,7 @@ Step 6–8: Technical Deep Dive (Q5–Q7)
 
 Ask three progressively deeper technical questions from:
 
-    Skills: ${skills}
+    Skills: ${technical_skills}, ${behavioural_skills}
 
     Experience: ${minExperience}–${maxExperience} years
 
@@ -233,4 +252,4 @@ Always ask randomly one of:
   };
 };
 
-export default Generic_Prompt;
+export default Generic_Agent;
