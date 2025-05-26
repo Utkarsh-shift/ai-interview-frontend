@@ -123,7 +123,6 @@ export function useHandleServerEvent({
           text.includes("interview session has been ended"));
 
       if (isConcludeMessage) {
-        // Optionally suppress the assistant message or log exit trigger here
         console.log("Detected interview conclusion message from assistant.");
         return;
       }

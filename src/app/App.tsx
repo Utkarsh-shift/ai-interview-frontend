@@ -51,6 +51,7 @@ interface StudentData {
 
 function App({ batch_id }: AppProps) {
 
+const [introMessage, setIntroMessage] = useState<string | null>(null);
 
   const [permissions, setPermissions] = useState({
     camera: false,
@@ -67,6 +68,7 @@ function App({ batch_id }: AppProps) {
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const mediaStreamRef = useRef<MediaStream | null>(null);
+  const [clickedStartInterviewButton, setClickedStartInterviewButton] = useState(false);
 
   const [isRequestMade, setIsRequestMade] = useState(false); 
   const [isSuccess, setIsSuccess] = useState(false);
@@ -140,7 +142,6 @@ function App({ batch_id }: AppProps) {
   const [showPermissionWarning, setShowPermissionWarning] = useState(false);
   const [permissionWarningMessage, setPermissionWarningMessage] = useState("");
   const permissionMonitorIntervalRef = useRef<NodeJS.Timeout | null>(null)
-
 
   useEffect(() => {
     if (!interviewStarted) return;
@@ -1156,14 +1157,8 @@ const sendSimulatedUserMessage = async (text: string) => {
     }
   };
 
-
-
 const updateSession = async (shouldTriggerResponse: boolean = false) => {
-
-  sendClientEvent(
-    { type: "input_audio_buffer.clear" },
-    "clear audio buffer on session update"
-  );
+  sendClientEvent({ type: "input_audio_buffer.clear" }, "clear audio buffer");
 
   const currentAgent = selectedAgentConfigSet?.find(
     (a) => a.name === selectedAgentName
@@ -1179,77 +1174,70 @@ const updateSession = async (shouldTriggerResponse: boolean = false) => {
         create_response: true,
       };
 
-  const instructions = currentAgent?.instructions || "";
-  const tools = currentAgent?.tools || [];
-
   const sessionUpdateEvent = {
     type: "session.update",
     session: {
       modalities: ["text", "audio"],
-      instructions,
+      instructions: currentAgent?.instructions || "",
       voice: "coral",
       input_audio_format: "pcm16",
       output_audio_format: "pcm16",
       input_audio_transcription: { model: "whisper-1" },
       turn_detection: turnDetection,
-      tools,
+      tools: currentAgent?.tools || [],
     },
   };
 
   sendClientEvent(sessionUpdateEvent);
 
-  const token =
-    localStorage.getItem("authToken") ;
-
   try {
+    const token = localStorage.getItem("authToken");
+
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_NGROK_URL}/api/get-student-data/`,
       {
         method: "POST",
         headers: {
-          "Authorization": `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ batch_id: batch_id }),
       }
     );
 
-    if (!response.ok) {
-      throw new Error(`Failed to fetch student data: ${response.status}`);
-    }
+    if (!response.ok) throw new Error("Failed to fetch student data");
 
     const studentData = await response.json();
+    const { student_name } = studentData;
 
-    const {
-      student_name,
-
-    } = studentData;
-
-    const startoo = `Hi I am ${student_name}, let's begin my interview `;
-
-    console.log("Constructed intro message:", startoo);
+    const message = `Hi I am ${student_name}, let's begin my interview`;
 
     if (shouldTriggerResponse) {
-      sendSimulatedUserMessage(startoo);
+      setIntroMessage(message); // store for useEffect to trigger later
     }
   } catch (error) {
     console.error("Error fetching student data:", error);
   }
 };
- 
+
+useEffect(() => {
+  if (clickedStartInterviewButton && introMessage) {
+    console.log("Interview started. Sending intro message...");
+    sendSimulatedUserMessage(introMessage);
+    setIntroMessage(null); // clear to prevent re-trigger
+  }
+}, [clickedStartInterviewButton, introMessage]);
 
 
 useEffect(() => {
   const localToken = localStorage.getItem("authToken");
- 
-
   const finalToken = localToken ;
   setToken(finalToken);
 }, []);
 
+
 useEffect(() => {
   if (token) {
-    // Use the token in your logic
     console.log("Token available:", token);
   }
 }, [token]);
@@ -1531,7 +1519,7 @@ const response = await fetch(
 
   useEffect(() => {
 
-    if (isSuccess) return;    
+    if (isRequestMade) return;    
     if (openaiId  && batch_id) {
   
       fetch("/api/Lipsync_session", {
@@ -1613,8 +1601,8 @@ const response = await fetch(
               micStreamRef.current = cameraStream;
               cameraStreamRef.current = cameraStream;
             }
-            setShowIntro(false);
             if (permissions.camera && permissions.mic && permissions.screen) {
+              setShowIntro(false);
               setInterviewStarted(true);
               requestFullscreen();
               connectToRealtime();
@@ -1631,6 +1619,7 @@ const response = await fetch(
           onPermissionsGranted={(perms) => {
             setPermissions(perms);
           }}
+           setClickedStartInterviewButton={setClickedStartInterviewButton} 
         />
       ) : (
         <>

@@ -3,6 +3,7 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import * as cocoSsd from "@tensorflow-models/coco-ssd";
 import * as tf from "@tensorflow/tfjs";
 import Image from "next/image";
+import { useSearchParams } from "next/navigation";
 
 interface IntroScreenProps {
   onProceed: (
@@ -17,12 +18,14 @@ interface IntroScreenProps {
     mic: boolean;
     screen: boolean;
   }) => void;
+    setClickedStartInterviewButton: (clicked: boolean) => void; 
 }
 
 const IntroScreen: React.FC<IntroScreenProps> = ({
   onProceed,
   setMicTrack,
   onPermissionsGranted,
+   setClickedStartInterviewButton,
 }) => {
   const [permissions, setPermissions] = useState({
     camera: false,
@@ -46,6 +49,8 @@ const [screenPermissionError, setScreenPermissionError] = useState(false);
     return () => clearTimeout(timer);
   }, []);
   
+  const searchParams = useSearchParams();
+
 
   const cameraStreamRef = useRef<MediaStream | null>(null);
   const screenStreamRef = useRef<MediaStream | null>(null);
@@ -129,6 +134,7 @@ const [screenPermissionError, setScreenPermissionError] = useState(false);
 
   const startInterview = async () => {
     try {
+       setClickedStartInterviewButton(true);
       if (permissions.camera && permissions.mic && permissions.screen) {
         setLoading((prev) => ({ ...prev, startInterview: true }));
        
@@ -338,11 +344,6 @@ return (
     </div>
   </div>
 );
-
-
-
- 
-
 
 };
 
