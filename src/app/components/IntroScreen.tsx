@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import * as cocoSsd from "@tensorflow-models/coco-ssd";
 import * as tf from "@tensorflow/tfjs";
 import Image from "next/image";
-import { useSearchParams } from "next/navigation";
+
 
 interface IntroScreenProps {
   onProceed: (
@@ -49,7 +49,6 @@ const [screenPermissionError, setScreenPermissionError] = useState(false);
     return () => clearTimeout(timer);
   }, []);
   
-  const searchParams = useSearchParams();
 
 
   const cameraStreamRef = useRef<MediaStream | null>(null);
