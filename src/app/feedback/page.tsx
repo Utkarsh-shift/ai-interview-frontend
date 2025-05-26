@@ -1,9 +1,15 @@
 "use client";
+
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 
 export default function FeedbackPage() {
+  const searchParams = useSearchParams();
   const router = useRouter();
+
+  // State for decoded redirect URL
+  const [redirectUrl, setRedirectUrl] = useState<string | null>(null);
   const [feedback, setFeedback] = useState("");
   const [rating, setRating] = useState(5);
   const [sessionId, setSessionId] = useState("");
@@ -11,6 +17,14 @@ export default function FeedbackPage() {
   useEffect(() => {
     const id = localStorage.getItem("sessionId");
     if (id) setSessionId(id);
+
+    const rawRedirectUrl = searchParams.get("redirect-url");
+    const decodedUrl = rawRedirectUrl ? decodeURIComponent(rawRedirectUrl) : null;
+    setRedirectUrl(decodedUrl);
+
+    console.log("✅ redirect-url:", decodedUrl);
+    console.log("✅ batch_id:", searchParams.get("batch_id"));
+    console.log("✅ job_id:", searchParams.get("job_id"));
   }, []);
 
   const handleSubmit = async () => {
@@ -30,8 +44,12 @@ export default function FeedbackPage() {
     });
 
     if (res.ok) {
-      window.close(); 
-      setTimeout(() => router.push("/")); 
+      if (redirectUrl) {
+        window.location.href = redirectUrl;
+      } else {
+        window.close();
+        setTimeout(() => router.push("/"), 1000);
+      }
     } else {
       const error = await res.json();
       console.error("Submission failed:", error);
@@ -39,8 +57,12 @@ export default function FeedbackPage() {
   };
 
   const handleSkip = () => {
-    window.close(); 
-    setTimeout(() => router.push("/"), 1000);
+    if (redirectUrl) {
+      window.location.href = redirectUrl;
+    } else {
+      window.close();
+      setTimeout(() => router.push("/"), 1000);
+    }
   };
 
   return (

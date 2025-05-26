@@ -187,7 +187,7 @@ const updateTranscriptItemStatus = (
 
           if (openaiId) {
             const NGROK_URL = process.env.NEXT_PUBLIC_BACKEND_NGROK_URL;
-            const token = process.env.NEXT_PUBLIC_TOKEN;
+            const token = localStorage.getItem("authToken") ;
 
             try {
               const res = await fetch(`${NGROK_URL}/api/merge_videos/`, {
@@ -217,7 +217,22 @@ const updateTranscriptItemStatus = (
             })
           );
 
-          window.location.href = "/feedback";
+           const batchId = localStorage.getItem("batch_id");
+            const jobId = localStorage.getItem("job_id");
+            const redirectUrl = localStorage.getItem("redirect_url");
+           
+
+            if (batchId && jobId && redirectUrl) {
+              const feedbackUrl = `/feedback?batch_id=${batchId}&job_id=${jobId}&redirect-url=${encodeURIComponent(
+                redirectUrl
+              )}`;
+
+              window.location.href = feedbackUrl;
+            } else {
+              console.error("Missing required data for feedback redirection.");
+            }
+
+
         };
         void saveTranscriptAndExit();
       }

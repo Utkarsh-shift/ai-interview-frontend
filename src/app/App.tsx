@@ -178,7 +178,39 @@ function App({ batch_id }: AppProps) {
   
             toast.error("Permissions revoked. Interview is being auto-submitted.");
             setInterviewEnded(true);
-            window.location.href = "/feedback";
+
+
+
+
+
+            const batchId = localStorage.getItem("batch_id");
+            const jobId = localStorage.getItem("job_id");
+            const redirectUrl = localStorage.getItem("redirect_url");
+           
+
+            if (batchId && jobId && redirectUrl) {
+              const feedbackUrl = `/feedback?batch_id=${batchId}&job_id=${jobId}&redirect-url=${encodeURIComponent(
+                redirectUrl
+              )}`;
+
+              window.location.href = feedbackUrl;
+            } else {
+              console.error("Missing required data for feedback redirection.");
+            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
           }
         }, 2000);
       } else {
@@ -980,7 +1012,25 @@ useEffect(() => {
         }
   
           toast.error(" You exited fullscreen 3 times. Interview is being auto-submitted.");
-          window.location.href = "/feedback"; 
+
+
+            const batchId = localStorage.getItem("batch_id");
+            const jobId = localStorage.getItem("job_id");
+            const redirectUrl = localStorage.getItem("redirect_url");
+           
+
+            if (batchId && jobId && redirectUrl) {
+              const feedbackUrl = `/feedback?batch_id=${batchId}&job_id=${jobId}&redirect-url=${encodeURIComponent(
+                redirectUrl
+              )}`;
+
+              window.location.href = feedbackUrl;
+          } else {
+            console.error("Missing required data for feedback redirection.");
+          }
+
+
+
         } else {
           
           toast.warning(
@@ -1149,7 +1199,7 @@ const updateSession = async (shouldTriggerResponse: boolean = false) => {
   sendClientEvent(sessionUpdateEvent);
 
   const token =
-    localStorage.getItem("authToken") || process.env.NEXT_PUBLIC_TOKEN;
+    localStorage.getItem("authToken") ;
 
   try {
     const response = await fetch(
@@ -1191,9 +1241,9 @@ const updateSession = async (shouldTriggerResponse: boolean = false) => {
 
 useEffect(() => {
   const localToken = localStorage.getItem("authToken");
-  const fallbackToken = process.env.NEXT_PUBLIC_TOKEN;
+ 
 
-  const finalToken = localToken || fallbackToken || "";
+  const finalToken = localToken ;
   setToken(finalToken);
 }, []);
 
@@ -1210,7 +1260,7 @@ useEffect(() => {
   const loadStudentAgent = async () => {
     try {
       const token =
-        localStorage.getItem("authToken") || process.env.NEXT_PUBLIC_TOKEN;
+        localStorage.getItem("authToken") ;
       if (!token) throw new Error("No token");
 
 const response = await fetch(
@@ -1513,7 +1563,22 @@ const response = await fetch(
   useEffect(() => {
     if (interviewEnded) {
       const timeout = setTimeout(() => {
-        window.location.href = "/feedback";
+            const batchId = localStorage.getItem("batch_id");
+            const jobId = localStorage.getItem("job_id");
+            const redirectUrl = localStorage.getItem("redirect_url");
+           
+
+            if (batchId && jobId && redirectUrl) {
+              const feedbackUrl = `/feedback?batch_id=${batchId}&job_id=${jobId}&redirect-url=${encodeURIComponent(
+                redirectUrl
+              )}`;
+
+              window.location.href = feedbackUrl;
+            } else {
+              console.error("Missing required data for feedback redirection.");
+            }
+
+
       }, 2000);
       return () => clearTimeout(timeout);
     }

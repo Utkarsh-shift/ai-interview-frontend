@@ -40,7 +40,7 @@ export function useHandleServerEvent({
       (a) => a.name === selectedAgentName
     );
 
-    // Handle concludeInterview separately to avoid transcript logging
+  
     if (functionCallParams.name === "concludeInterview") {
       try {
         const response = await fetch("/api/store_transcript", {
