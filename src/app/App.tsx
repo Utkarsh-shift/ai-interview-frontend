@@ -1151,49 +1151,40 @@ const updateSession = async (shouldTriggerResponse: boolean = false) => {
   const token =
     localStorage.getItem("authToken") || process.env.NEXT_PUBLIC_TOKEN;
 
-  // try {
-  //   // const response = await fetch(
-    //   `${process.env.NEXT_PUBLIC_BACKEND_NGROK_URL}/api/get-student-data/`,
-    //   {
-    //     method: "POST",
-    //     headers: {
-    //       "Authorization": `Bearer ${token}`,
-    //       "Content-Type": "application/json",
-    //     },
-    //     body: JSON.stringify({ batch_id: batch_id }),
-    //   }
-    // );
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_NGROK_URL}/api/get-student-data/`,
+      {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ batch_id: batch_id }),
+      }
+    );
 
-    // if (!response.ok) {
-    //   throw new Error(`Failed to fetch student data: ${response.status}`);
-    // }
+    if (!response.ok) {
+      throw new Error(`Failed to fetch student data: ${response.status}`);
+    }
 
-//     const studentData = await response.json();
+    const studentData = await response.json();
 
-//     const {
-//       student_name,
-//       education,
-//       skills,
-//       student_experience,
-//       certfication,
-//       projects,
-//       job_id,
-//     } = studentData;
+    const {
+      student_name,
 
-//     const startoo = `Hi I am ${student_name}, let's begin my interview for the role ${job_id}. I studied at ${education} and worked as ${student_experience}. 
-// I am skilled in ${skills}. Some of my key certifications are ${certfication
-//       .slice(0, 3)
-//       .join(", ")}. 
-// I have also completed projects like ${projects.slice(0, 3).join(", ")}. Let's get started!`;
+    } = studentData;
 
-//     console.log("Constructed intro message:", startoo);
+    const startoo = `Hi I am ${student_name}, let's begin my interview `;
 
-  //   if (shouldTriggerResponse) {
-  //     sendSimulatedUserMessage(startoo);
-  //   }
-  // } catch (error) {
-  //   console.error("Error fetching student data:", error);
-  // }
+    console.log("Constructed intro message:", startoo);
+
+    if (shouldTriggerResponse) {
+      sendSimulatedUserMessage(startoo);
+    }
+  } catch (error) {
+    console.error("Error fetching student data:", error);
+  }
 };
  
 
