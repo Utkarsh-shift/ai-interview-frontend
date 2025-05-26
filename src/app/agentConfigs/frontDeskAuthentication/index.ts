@@ -5,7 +5,6 @@ import Digital_Marketing from "./Digital_marketing";
 import Ai_specialist from "./AI";
 import { injectTransferTools } from '../utils';
 import { injectInterviewConclusionTool } from '../utils';
-import { injectAnswerCompletionTools } from "../utils";
 
 import Business_development from "./Business_development";
 import IT_admin from "./IT_admin";
@@ -36,7 +35,7 @@ async function getAgents() {
 
   let agents = injectTransferTools(Object.values(agentsMap));
   agents = injectInterviewConclusionTool(agents);
-  agents = injectAnswerCompletionTools(agents);
+  
 
   return { agentsList: agents, agentsMap };
 }

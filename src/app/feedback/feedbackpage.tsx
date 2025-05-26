@@ -8,7 +8,6 @@ export default function FeedbackPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  // State for decoded redirect URL
   const [redirectUrl, setRedirectUrl] = useState<string | null>(null);
   const [feedback, setFeedback] = useState("");
   const [rating, setRating] = useState(5);
@@ -22,9 +21,9 @@ export default function FeedbackPage() {
     const decodedUrl = rawRedirectUrl ? decodeURIComponent(rawRedirectUrl) : null;
     setRedirectUrl(decodedUrl);
 
-    console.log("✅ redirect-url:", decodedUrl);
-    console.log("✅ batch_id:", searchParams.get("batch_id"));
-    console.log("✅ job_id:", searchParams.get("job_id"));
+    console.log("redirect-url:", decodedUrl);
+    console.log("batch_id:", searchParams.get("batch_id"));
+    console.log("job_id:", searchParams.get("job_id"));
   }, []);
 
   const handleSubmit = async () => {

@@ -60,54 +60,85 @@ const [screenPermissionError, setScreenPermissionError] = useState(false);
 
   const [resumeData] = useState<any>(null);
 
-  const requestCameraPermission = async () => {
-    try {
-      setError(null);
-      setLoading((prev) => ({ ...prev, camera: true }));
-      const cameraStream = await navigator.mediaDevices.getUserMedia({ video: true });
-      cameraStreamRef.current = cameraStream;
 
-      if (videoRef.current) {
-        videoRef.current.srcObject = cameraStream;
-      }
+const [permissionMessage, setPermissionMessage] = useState<string | null>(null);
 
-      setPermissions((prev) => ({ ...prev, camera: true }));
-      onPermissionsGranted({
-        camera: true,
-        mic: permissions.mic,
-        screen: permissions.screen,
-      });
-    } catch (error) {
-      console.error("Camera permission error:", error);
-      setError("Camera permission denied. Please allow camera access.");
-    } finally {
-      setLoading((prev) => ({ ...prev, camera: false }));
+
+  const checkDeviceAvailability = async (kind: "videoinput" | "audioinput") => {
+  const devices = await navigator.mediaDevices.enumerateDevices();
+  return devices.some((device) => device.kind === kind);
+};
+
+
+
+ const requestCameraPermission = async () => {
+  try {
+    setError(null);
+    setLoading((prev) => ({ ...prev, camera: true }));
+
+    const hasCamera = await checkDeviceAvailability("videoinput");
+    if (!hasCamera) {
+      const msg = "❌ No camera detected. Please connect a camera to continue.";
+      setPermissionMessage(msg);
+      setError(msg);
+      return;
     }
-  };
 
-  const requestMicPermission = async () => {
-    try {
-      setError(null);
-      setLoading((prev) => ({ ...prev, mic: true }));
-      const micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const audioTrack = micStream.getAudioTracks()[0];
-      if (audioTrack) {
-        setMicTrack(audioTrack);
-      }
+    const cameraStream = await navigator.mediaDevices.getUserMedia({ video: true });
+    cameraStreamRef.current = cameraStream;
 
-      setPermissions((prev) => ({ ...prev, mic: true }));
-      onPermissionsGranted({
-        camera: permissions.camera,
-        mic: true,
-        screen: permissions.screen,
-      });
-    } catch (error) {
-      console.error("Microphone permission error:", error);
-      setError("Microphone permission denied. Please allow microphone access.");
-    } finally {
-      setLoading((prev) => ({ ...prev, mic: false }));
+    if (videoRef.current) {
+      videoRef.current.srcObject = cameraStream;
     }
-  };
+
+    setPermissions((prev) => ({ ...prev, camera: true }));
+    onPermissionsGranted({
+      camera: true,
+      mic: permissions.mic,
+      screen: permissions.screen,
+    });
+  } catch (error) {
+    console.error("Camera permission error:", error);
+    setError("Camera permission denied. Please allow camera access.");
+  } finally {
+    setLoading((prev) => ({ ...prev, camera: false }));
+  }
+};
+
+
+const requestMicPermission = async () => {
+  try {
+    setError(null);
+    setLoading((prev) => ({ ...prev, mic: true }));
+
+    const hasMic = await checkDeviceAvailability("audioinput");
+    if (!hasMic) {
+      const msg = "❌ No microphone detected. Please connect a mic to continue.";
+      setPermissionMessage(msg);
+      setError(msg);
+      return;
+    }
+
+    const micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const audioTrack = micStream.getAudioTracks()[0];
+    if (audioTrack) {
+      setMicTrack(audioTrack);
+    }
+
+    setPermissions((prev) => ({ ...prev, mic: true }));
+    onPermissionsGranted({
+      camera: permissions.camera,
+      mic: true,
+      screen: permissions.screen,
+    });
+  } catch (error) {
+    console.error("Microphone permission error:", error);
+    setError("Microphone permission denied. Please allow microphone access.");
+  } finally {
+    setLoading((prev) => ({ ...prev, mic: false }));
+  }
+};
+
 
   const requestScreenPermission = async () => {
     try {
@@ -132,24 +163,42 @@ const [screenPermissionError, setScreenPermissionError] = useState(false);
     }
   };
 
-  const startInterview = async () => {
-    try {
-       setClickedStartInterviewButton(true);
-      if (permissions.camera && permissions.mic && permissions.screen) {
-        setLoading((prev) => ({ ...prev, startInterview: true }));
-       
-        await new Promise((resolve) => setTimeout(resolve, 1000)); 
-        onProceed(resumeData, screenStreamRef.current, cameraStreamRef.current);
-      } else {
-        setError("Please grant all permissions to proceed.");
+const startInterview = async () => {
+  try {
+    setClickedStartInterviewButton(true);
+
+    if (permissions.camera && permissions.mic && permissions.screen) {
+      setLoading((prev) => ({ ...prev, startInterview: true }));
+
+
+      const sessionId = localStorage.getItem("sessionId");
+      if (sessionId) {
+        await fetch("/api/Lipsync_session", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            openai_session_id: sessionId,
+            started_at: new Date().toISOString(),
+          }),
+        });
       }
-    } catch (error) {
-      console.error("Start interview error:", error);
-      setError("Failed to start the interview. Please try again.");
-    } finally {
-      setLoading((prev) => ({ ...prev, startInterview: false }));
+
+      // 🔸 Delay for UX smoothness
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      // 🔸 Proceed to the interview
+      onProceed(resumeData, screenStreamRef.current, cameraStreamRef.current);
+    } else {
+      setError("Please grant all permissions to proceed.");
     }
-  };
+  } catch (error) {
+    console.error("Start interview error:", error);
+    setError("Failed to start the interview. Please try again.");
+  } finally {
+    setLoading((prev) => ({ ...prev, startInterview: false }));
+  }
+};
+
 
   const detectFaces = useCallback(async () => {
     if (!videoRef.current || !modelRef.current) {
@@ -181,6 +230,14 @@ const [screenPermissionError, setScreenPermissionError] = useState(false);
   }, []);
 
 
+  useEffect(() => {
+  if (permissionMessage) {
+    const timer = setTimeout(() => setPermissionMessage(null), 5000);
+    return () => clearTimeout(timer);
+  }
+}, [permissionMessage]);
+
+
 if (showLoader) {
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-blue-50 via-white to-blue-100 flex flex-col items-center justify-center px-6 text-center">
@@ -210,6 +267,8 @@ if (showLoader) {
   
 
 return (
+
+  
   <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4 py-10">
     <div className="w-full max-w-7xl space-y-10">
       <div className="text-center">
@@ -228,7 +287,7 @@ return (
             height={600} 
             className="w-full rounded-xl shadow-md"
           />
-
+            
 
           <div className="flex flex-col md:flex-row gap-4">
             <div className="w-full md:w-1/2 bg-orange-100 border-l-4 border-yellow-500 p-5 rounded-lg shadow-sm">
@@ -339,6 +398,20 @@ return (
               {loading.startInterview ? "Starting..." : "Start Interview"}
             </button>
           </div>
+
+{permissionMessage && (
+  <div className="w-full max-w-xl mx-auto mb-4 relative">
+    <div className="relative flex items-start space-x-3 p-4 bg-red-50 border border-red-300 rounded-xl shadow-md animate-fade-in">
+      <span className="text-red-600 text-xl mt-1"></span>
+
+
+      <div className="text-sm text-red-700">{permissionMessage}</div>
+
+
+    </div>
+  </div>
+)}
+
         </div>
       </div>
     </div>

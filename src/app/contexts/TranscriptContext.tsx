@@ -186,6 +186,21 @@ const updateTranscriptItemStatus = (
           const openaiId = match?.[1];
 
           if (openaiId) {
+
+                try {
+      await fetch("/api/Lipsync_session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          openai_session_id: openaiId,
+          ended_at: new Date().toISOString(),
+        }),
+      });
+      console.log("✅ ended_at updated for", openaiId);
+    } catch (err) {
+      console.error("❌ Error updating ended_at in lipsync session:", err);
+    }
+
             const NGROK_URL = process.env.NEXT_PUBLIC_BACKEND_NGROK_URL;
             const token = localStorage.getItem("authToken") ;
 

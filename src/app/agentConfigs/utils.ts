@@ -96,43 +96,43 @@ export function injectInterviewConclusionTool(agentDefs: AgentConfig[]): AgentCo
 }
 
 
-export function injectAnswerCompletionTools(agentDefs: AgentConfig[]): AgentConfig[] {
+// export function injectAnswerCompletionTools(agentDefs: AgentConfig[]): AgentConfig[] {
  
-  agentDefs.forEach((agentDef) => {
+//   agentDefs.forEach((agentDef) => {
     
-    const answerCompletionTool: Tool = {
-      type: "function",
-      name: "detectAnswerCompletion",
-      description: `Determines if the user has completed answering a question.
-  This tool analyzes the user's response and detects whether they have finished their input or if they might need prompting to continue.
-  Only call this function when a response is being evaluated to check for completeness.
-  `,
-      parameters: {
-        type: "object",
-        properties: {
-          user_response: {
-            type: "string",
-            description: "The user's current response that needs to be evaluated.",
-          },
-          conversation_context: {
-            type: "string",
-            description:
-              "Relevant context from the conversation that will help in determining whether the user has completed their response.",
-          },
-        },
-        required: ["user_response", "conversation_context"],
-      },
-    };
+//     const answerCompletionTool: Tool = {
+//       type: "function",
+//       name: "detectAnswerCompletion",
+//       description: `Determines if the user has completed answering a question.
+//   This tool analyzes the user's response and detects whether they have finished their input or if they might need prompting to continue.
+//   Only call this function when a response is being evaluated to check for completeness.
+//   `,
+//       parameters: {
+//         type: "object",
+//         properties: {
+//           user_response: {
+//             type: "string",
+//             description: "The user's current response that needs to be evaluated.",
+//           },
+//           conversation_context: {
+//             type: "string",
+//             description:
+//               "Relevant context from the conversation that will help in determining whether the user has completed their response.",
+//           },
+//         },
+//         required: ["user_response", "conversation_context"],
+//       },
+//     };
 
-    if (!agentDef.tools) {
-      agentDef.tools = [];
-    }
+//     if (!agentDef.tools) {
+//       agentDef.tools = [];
+//     }
 
-    agentDef.tools.push(answerCompletionTool);
-  });
+//     agentDef.tools.push(answerCompletionTool);
+//   });
 
-  return agentDefs;
-}
+//   return agentDefs;
+// }
 
 
 export function injectEnvironmentCheckTool(agentDefs: AgentConfig[]): AgentConfig[] {
