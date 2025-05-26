@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
 
     const [result] = await conn.execute(
       `INSERT INTO lipsync_openaiid_batchid (openai_session_id , batch_id,created_at,updated_at)
-       VALUES (?,  ?, ?,NOW(), NOW())
+       VALUES (?, ?,NOW(), NOW())
        ON DUPLICATE KEY UPDATE openai_session_id = VALUES(openai_session_id)`,
       [openai_session_id , batch_id]
     );
