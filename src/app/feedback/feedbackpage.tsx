@@ -3,7 +3,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Image from "next/image";
-import Logo from "/media/almabay/StorageDisk/Utk_Lak/ai-interview-frontend/public/PLACECOM LOGO SVG.svg"; // Place this in your public directory
+import Logo from "/public/PLACECOM LOGO SVG.svg"; // Corrected import path for logo
 
 export default function FeedbackPage() {
   const searchParams = useSearchParams();
