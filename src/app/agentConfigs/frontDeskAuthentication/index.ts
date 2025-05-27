@@ -40,7 +40,7 @@ async function getAgents() {
     Generic_Agent: () => Promise.resolve(Generic_Agent(selectedLanguage)),
     Ai_specialist: () => Promise.resolve(Ai_specialist(selectedLanguage)),
     Digital_Marketing: () => Promise.resolve(Digital_Marketing(selectedLanguage)),
-    QA_Analyst: () => Promise.resolve(QA_Analyst(selectedLanguage)),
+    Quality_analyst: () => Promise.resolve(QA_Analyst(selectedLanguage)),
     Web_development: () => Promise.resolve(Web_development(selectedLanguage)),
     SoftwareDevelopement: () => Promise.resolve(sde_specialist(selectedLanguage)),
     AI_Design: () => Promise.resolve(AI_Design(selectedLanguage)),
