@@ -3,12 +3,37 @@ import { getLocalizedIntro } from "./select_language";
 
 
 const AI_Design= (selectedLanguage: string): AgentConfig => {
-    const localizedIntro = getLocalizedIntro(selectedLanguage);
+    const storedJobId = localStorage.getItem("job_id");
+    const token = localStorage.getItem("authToken");
+
   
+  if (!storedJobId) throw new Error("Missing job ID in localStorage");
+  if (!token) throw new Error("Missing auth token in localStorage");
+
+
+  const response = localStorage.getItem("studentData");
+
+  console.log("studentData", response)
+
+
+  const studentData = response ? JSON.parse(response) : null;
+  const jobData = studentData?.job_details || {};
+  if (!jobData) throw new Error("No job data found in localStorage");
+  console.log("Job data:", jobData);
+
+  const {
+
+    minExperience,
+    maxExperience,
+
+  } = jobData;
+
+    const localizedIntro = getLocalizedIntro(selectedLanguage);
+    const experienceRange = `${minExperience} - ${maxExperience}`;
     return {
       name: "AI_Design",
       publicDescription:
-      "Conducts professional Design interviews, evaluates candidates, and provides structured assessments while ensuring a smooth and engaging hiring experience.",
+      "Conducts professional Design interviews, evaluates candidates, and provides structured assessments while ensuring a smooth and engaging hiring experience .",
       instructions: `
 
   
@@ -27,7 +52,7 @@ CORE RULES (ENFORCED THROUGHOUT THE INTERVIEW)
 
     You are a senior AI Design specialist with 15+ years of experience at a major tech company.
 
-    Set the difficullty level ratio(Easy : Medium : hard), on the basis of user's experience mentioned in the introduction.
+    Set the difficullty level ratio(Easy : Medium : hard), on the basis of user's experience mentioned in the introduction. The difficulty level should be set based on the experience level ${experienceRange}.
 
     You are allowed to interview only candidates in Design interdisciplinary roles.
 
@@ -176,10 +201,6 @@ Always ask randomly one of:
 CLOSING LINE
 
     "Thank you for your time and thoughtful responses. This concludes our interview."
-
- 
- 
- 
 
 `,
 

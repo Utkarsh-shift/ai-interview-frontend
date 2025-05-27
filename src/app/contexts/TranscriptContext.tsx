@@ -242,7 +242,9 @@ const updateTranscriptItemStatus = (
                 redirectUrl
               )}`;
 
-              window.location.href = feedbackUrl;
+                              setTimeout(() => {
+                    window.location.href = feedbackUrl;
+                  }, 5000); // 
             } else {
               console.error("Missing required data for feedback redirection.");
             }

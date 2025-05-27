@@ -16,7 +16,6 @@ import { useTranscript } from "../app/contexts/TranscriptContext";
 import { useEvent } from "../app/contexts/EventContext";
 import { useHandleServerEvent } from "./hooks/useHandleServerEvent";
 import { createRealtimeConnection } from "./lib/realtimeConnection";
-import { getAllAgentSets, defaultAgentSetKey } from "../app/agentConfigs";
 import Video from "./components/video/Video";
 import hotkeys from "hotkeys-js";
 import IntroScreen from "./components/IntroScreen";
@@ -195,18 +194,13 @@ const [introMessage, setIntroMessage] = useState<string | null>(null);
                 redirectUrl
               )}`;
 
-              window.location.href = feedbackUrl;
+
+                setTimeout(() => {
+                    window.location.href = feedbackUrl;
+                  }, 5000); // 
             } else {
               console.error("Missing required data for feedback redirection.");
             }
-
-
-
-
-
-
-
-
 
 
 
@@ -343,6 +337,7 @@ if (!audioElementRef.current) {
 
 
 
+
   const sendClientEvent = (eventObj: any, eventNameSuffix = "") => {
     if (dcRef.current && dcRef.current.readyState === "open") {
       logClientEvent(eventObj, eventNameSuffix);
@@ -421,31 +416,75 @@ if (!audioElementRef.current) {
 
 
 
+// useEffect(() => {
+//   const loadAgents = async () => {
+//     const { agentsMap, agentsList } = await getAgents(); 
+//     const selectedAgent = agentsList[0]; 
+
+//     if (!selectedAgent) {
+//       console.warn(" No agent found in agentsList");
+//       return;
+//     }
+
+    
+//     const agentConfigParam = searchParams.get("agentConfig");
+//     if (!agentConfigParam || !(agentConfigParam in agentsMap)) {
+//       const newUrl = new URL(window.location.href);
+//       newUrl.searchParams.set("agentConfig", selectedAgent.name);
+//       window.history.replaceState({}, "", newUrl.toString());
+//     }
+
+//     setSelectedAgentName(selectedAgent.name);
+//     setSelectedAgentConfigSet([selectedAgent]); 
+//   };
+
+//   loadAgents();
+// }, [searchParams]);
+
 
 useEffect(() => {
-  const loadAgents = async () => {
-    const allAgentSets = await getAllAgentSets();
-    let finalAgentConfig = searchParams.get("agentConfig");
+  const loadStudentAgent = async () => {
+    try {
+      const token = localStorage.getItem("authToken");
+      if (!token) throw new Error("No token");
 
-    if (!finalAgentConfig || !(finalAgentConfig in allAgentSets)) {
-      finalAgentConfig = defaultAgentSetKey;
-      const newUrl = new URL(window.location.href);
-      newUrl.searchParams.set("agentConfig", finalAgentConfig);
-      window.history.replaceState({}, "", newUrl.toString());
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_NGROK_URL}/api/get-student-data/`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ batch_id: batch_id }),
+        }
+      );
+
+      if (!response.ok) throw new Error("Failed to fetch student data");
+
+      const studentData: StudentData = await response.json();
+
+      localStorage.setItem("studentData", JSON.stringify(studentData)); 
+
+      const {  agentsList } = await getAgents(); 
+      const selectedAgent = agentsList[0];
+
+      if (!selectedAgent) {
+        console.warn(" Selected agent not found in agentsList");
+        return;
+      }
+
+      if (selectedAgentName !== selectedAgent.name) {
+        setSelectedAgentName(selectedAgent.name);
+        setSelectedAgentConfigSet([selectedAgent]); 
+      }
+    } catch (err) {
+      console.error(" Agent assignment failed:", err);
     }
-
-    const agents = allAgentSets[finalAgentConfig as keyof typeof allAgentSets];
-    const agentKeyToUse = agents.agentsList?.[0]?.name || "";
-
-    setSelectedAgentName(agentKeyToUse);
-    setSelectedAgentConfigSet(agents.agentsList);
   };
 
-  loadAgents();
-}, [searchParams]);
-
-
-
+  loadStudentAgent();
+}, []);
 
 
   useEffect(() => {
@@ -1026,7 +1065,11 @@ useEffect(() => {
                 redirectUrl
               )}`;
 
+ 
+
+              setTimeout(() => {
               window.location.href = feedbackUrl;
+            }, 5000); // 
           } else {
             console.error("Missing required data for feedback redirection.");
           }
@@ -1244,55 +1287,6 @@ useEffect(() => {
   }
 }, [token]);
 
-
-
-useEffect(() => {
-  const loadStudentAgent = async () => {
-    try {
-      const token =
-        localStorage.getItem("authToken") ;
-      if (!token) throw new Error("No token");
-
-const response = await fetch(
-  `${process.env.NEXT_PUBLIC_BACKEND_NGROK_URL}/api/get-student-data/`,
-  {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ batch_id: batch_id }),
-  }
-);
-
-
-      if (!response.ok) throw new Error("Failed to fetch student data");
-
-      const studentData: StudentData = await response.json();
-
-      const agentKeyFromAPI = studentData.agent;
-
-      const { agentsMap, agentsList } = await getAgents();
-      console.log("📦 Loaded agentsMap keys:", Object.keys(agentsMap));
-
-      if (!(agentKeyFromAPI in agentsMap)) {
-        console.warn(`❗ Agent '${agentKeyFromAPI}' not found`);
-        return;
-      }
-
-      const selectedAgent =
-        agentsMap[agentKeyFromAPI as keyof typeof agentsMap];
-      console.log(" Selected agent:", selectedAgent);
-
-      setSelectedAgentName(selectedAgent.name);
-      setSelectedAgentConfigSet(agentsList);
-    } catch (err) {
-      console.error(" Agent assignment failed:", err);
-    }
-  };
-
-  loadStudentAgent();
-}, []);
 
 
 
@@ -1521,7 +1515,7 @@ const response = await fetch(
 
   useEffect(() => {
 
-    if (isRequestMade) return;    
+    if (isSuccess) return;    
     if (openaiId  && batch_id) {
   
       fetch("/api/Lipsync_session", {
@@ -1563,7 +1557,11 @@ const response = await fetch(
                 redirectUrl
               )}`;
 
-              window.location.href = feedbackUrl;
+
+
+                              setTimeout(() => {
+                    window.location.href = feedbackUrl;
+                  }, 5000); // 
             } else {
               console.error("Missing required data for feedback redirection.");
             }

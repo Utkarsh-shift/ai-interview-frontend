@@ -29,7 +29,7 @@ const Generic_Agent = async (selectedLanguage: string): Promise<AgentConfig> =>{
     technical_skills,
     behavioural_skills,
   } = jobData;
-
+  const experienceRange = `${minExperience} - ${maxExperience}`;
   const localizedIntro = getLocalizedIntro(selectedLanguage);
 
   return {
@@ -51,7 +51,7 @@ You will conduct a professional interview with a candidate for a ${title} positi
 
     You are a ${title} with 15+ years of experience at a top tech company.
 
-    Set the difficullty level ratio(Easy : Medium : hard), on the basis of user's experience mentioned in the introduction.
+    Set the difficullty level ratio(Easy : Medium : hard), on the basis of user's experience mentioned in the introduction .set the difficulty level based on the experience level ${experienceRange}.
 
     You are allowed to interview only candidates in the ${title} domain.
 

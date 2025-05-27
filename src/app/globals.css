@@ -245,6 +245,30 @@ button:hover {
   transition: background 0.3s ease, box-shadow 0.3s ease;
 }
  
+@keyframes pulseSlow {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+@keyframes pulseSlower {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.03); }
+}
+.animate-pulse-slow {
+  animation: pulseSlow 10s ease-in-out infinite;
+}
+.animate-pulse-slower {
+  animation: pulseSlower 14s ease-in-out infinite;
+}
+
+@keyframes buttonPop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.07); }
+  100% { transform: scale(1); }
+}
+
+.animate-button-pop {
+  animation: buttonPop 0.25s ease-in-out;
+}
 
 .transcript {
   position: fixed;

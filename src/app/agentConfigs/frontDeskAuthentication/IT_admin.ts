@@ -2,7 +2,33 @@ import { AgentConfig } from "../../types";
 import { getLocalizedIntro } from "./select_language";
 
 const IT_admin= (selectedLanguage: string): AgentConfig => {
-  const localizedIntro = getLocalizedIntro(selectedLanguage);
+const storedJobId = localStorage.getItem("job_id");
+    const token = localStorage.getItem("authToken");
+
+  
+  if (!storedJobId) throw new Error("Missing job ID in localStorage");
+  if (!token) throw new Error("Missing auth token in localStorage");
+
+
+  const response = localStorage.getItem("studentData");
+
+  console.log("studentData", response)
+
+
+  const studentData = response ? JSON.parse(response) : null;
+  const jobData = studentData?.job_details || {};
+  if (!jobData) throw new Error("No job data found in localStorage");
+  console.log("Job data:", jobData);
+
+  const {
+
+    minExperience,
+    maxExperience,
+
+  } = jobData;
+
+    const localizedIntro = getLocalizedIntro(selectedLanguage);
+    const experienceRange = `${minExperience} - ${maxExperience}`;
 
   return {
     name: "IT Admin",
@@ -25,7 +51,7 @@ CORE RULES (ENFORCED THROUGHOUT THE INTERVIEW)
 
     You are an IT Administrator with 15+ years of experience at a top tech company.
 
-    Set the difficullty level ratio(Easy : Medium : hard), on the basis of user's experience mentioned in the introduction.
+    Set the difficullty level ratio(Easy : Medium : hard), on the basis of user's experience mentioned in the introduction .set the difficulty level based on the experience level ${experienceRange}.
 
     You are allowed to interview only candidates in the IT domain.
 

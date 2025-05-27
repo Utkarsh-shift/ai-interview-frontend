@@ -1,8 +1,7 @@
-import tourAgent from "./tourGuide";
+
 import sde_specialist from "./SoftwareDevelopement";
 import Digital_Marketing from "./Digital_marketing";
 import Ai_specialist from "./AI";
-
 import Business_development from "./Business_development";
 import IT_admin from "./IT_admin";
 import Web_development from "./Web_development";
@@ -15,25 +14,55 @@ import Generic_Agent from "./Generic_Prompt";
 async function getAgents() {
   const selectedLanguage = "English";
 
-  // Await each agent if it's async
-  const agentsMap = {
-    Ai_specialist: await Ai_specialist(selectedLanguage, 7),
-    Business_development: await Business_development(selectedLanguage),
-    Digital_Marketing: await Digital_Marketing(selectedLanguage),
-    QA_Analyst: await QA_Analyst(selectedLanguage),
-    Web_development: await Web_development(selectedLanguage),
-    SoftwareDevelopement: await sde_specialist(selectedLanguage),
-    Generic_Agent: await Generic_Agent(selectedLanguage),
-    AI_Design: await AI_Design(selectedLanguage),
-    IT_admin: await IT_admin(selectedLanguage),
-    Php_developer: await Php_developer(selectedLanguage, 6),
-    UI_UX: await UI_UX(selectedLanguage, 5),
-    tourAgent: tourAgent, // assumed to be already resolved
+  const response = localStorage.getItem("studentData");
+  let agentName = null;
+
+  if (response) {
+    try {
+      const studentData = JSON.parse(response);
+      agentName = studentData.agent;
+      console.log(" Agent Name from studentData:", agentName);
+    } catch (error) {
+      console.error("Failed to parse studentData:", error);
+    }
+  } else {
+    console.warn("No studentData found in localStorage");
+  }
+
+  if (!agentName) {
+    console.warn(" No agent specified in studentData — using fallback Generic_Agent");
+    agentName = "Generic_Agent";
+  }
+
+
+  const agentFactories: Record<string, () => Promise<any>> = {
+    Business_development: () => Promise.resolve(Business_development(selectedLanguage)),
+    Generic_Agent: () => Promise.resolve(Generic_Agent(selectedLanguage)),
+    Ai_specialist: () => Promise.resolve(Ai_specialist(selectedLanguage)),
+    Digital_Marketing: () => Promise.resolve(Digital_Marketing(selectedLanguage)),
+    QA_Analyst: () => Promise.resolve(QA_Analyst(selectedLanguage)),
+    Web_development: () => Promise.resolve(Web_development(selectedLanguage)),
+    SoftwareDevelopement: () => Promise.resolve(sde_specialist(selectedLanguage)),
+    AI_Design: () => Promise.resolve(AI_Design(selectedLanguage)),
+    IT_admin: () => Promise.resolve(IT_admin(selectedLanguage)),
+    Php_developer: () => Promise.resolve(Php_developer(selectedLanguage)),
+    UI_UX: () => Promise.resolve(UI_UX(selectedLanguage)),
   };
 
-  const agentsList = Object.values(agentsMap); // Now: AgentConfig[]
+  if (!(agentName in agentFactories)) {
+    console.warn(` Agent "${agentName}" not found — defaulting to Generic_Agent`);
+    agentName = "Generic_Agent";
+  }
 
-  return { agentsList, agentsMap };
+  const selectedAgent = await agentFactories[agentName]();
+
+  const agentsMap = {
+    [agentName]: selectedAgent,
+  };
+
+  const agentsList = [selectedAgent];
+
+  return { agentsMap, agentsList };
 }
 
 export default getAgents;
