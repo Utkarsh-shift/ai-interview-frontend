@@ -43,13 +43,6 @@ const IntroScreen: React.FC<IntroScreenProps> = ({
 const [screenPermissionError, setScreenPermissionError] = useState(false);
 
   const [, setError] = useState<string | null>(null);
-  const [showLoader, setShowLoader] = useState(true);
-  useEffect(() => {
-    const timer = setTimeout(() => setShowLoader(false), 2500); 
-    return () => clearTimeout(timer);
-  }, []);
-  
-
 
   const cameraStreamRef = useRef<MediaStream | null>(null);
   const screenStreamRef = useRef<MediaStream | null>(null);
@@ -58,71 +51,78 @@ const [screenPermissionError, setScreenPermissionError] = useState(false);
   const detectionIntervalRef = useRef<number | null>(null);
 
   const [resumeData] = useState<any>(null);
-
-
-const [permissionMessage, setPermissionMessage] = useState<string | null>(null);
-
-
+  
+  
+  const [permissionMessage, setPermissionMessage] = useState<string | null>(null);
+  
+  
   const checkDeviceAvailability = async (kind: "videoinput" | "audioinput") => {
-  const devices = await navigator.mediaDevices.enumerateDevices();
-  return devices.some((device) => device.kind === kind);
-};
-
-
-
- const requestCameraPermission = async () => {
-  try {
-    setError(null);
-    setLoading((prev) => ({ ...prev, camera: true }));
-
-    const hasCamera = await checkDeviceAvailability("videoinput");
-    if (!hasCamera) {
-      const msg = "❌ No camera detected. Please connect a camera to continue.";
-      setPermissionMessage(msg);
-      setError(msg);
-      return;
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    return devices.some((device) => device.kind === kind);
+  };
+  
+  
+  
+  const requestCameraPermission = async () => {
+    try {
+      setError(null);
+      setLoading((prev) => ({ ...prev, camera: true }));
+      
+      const hasCamera = await checkDeviceAvailability("videoinput");
+      if (!hasCamera) {
+        const msg = " No camera detected. Please connect a camera to continue.";
+        setPermissionMessage(msg);
+        setError(msg);
+        return;
+      }
+      
+      const cameraStream = await navigator.mediaDevices.getUserMedia({ video: true });
+      cameraStreamRef.current = cameraStream;
+      
+      if (videoRef.current) {
+        videoRef.current.srcObject = cameraStream;
+      }
+      
+      setPermissions((prev) => ({ ...prev, camera: true }));
+      onPermissionsGranted({
+        camera: true,
+        mic: permissions.mic,
+        screen: permissions.screen,
+      });
+    } catch (error) {
+      console.error("Camera permission error:", error);
+      setError("Camera permission denied. Please allow camera access.");
+    } finally {
+      setLoading((prev) => ({ ...prev, camera: false }));
     }
-
-    const cameraStream = await navigator.mediaDevices.getUserMedia({ video: true });
-    cameraStreamRef.current = cameraStream;
-
-    if (videoRef.current) {
-      videoRef.current.srcObject = cameraStream;
-    }
-
-    setPermissions((prev) => ({ ...prev, camera: true }));
-    onPermissionsGranted({
-      camera: true,
-      mic: permissions.mic,
-      screen: permissions.screen,
-    });
-  } catch (error) {
-    console.error("Camera permission error:", error);
-    setError("Camera permission denied. Please allow camera access.");
-  } finally {
-    setLoading((prev) => ({ ...prev, camera: false }));
-  }
-};
-
-
-const requestMicPermission = async () => {
+  };
+  
+  
+  const requestMicPermission = async () => {
+  // const activeMicStream = await navigator.mediaDevices.getUserMedia({ audio: true });
   try {
     setError(null);
     setLoading((prev) => ({ ...prev, mic: true }));
 
     const hasMic = await checkDeviceAvailability("audioinput");
     if (!hasMic) {
-      const msg = "❌ No microphone detected. Please connect a mic to continue.";
+      const msg = " No microphone detected. Please connect a mic to continue.";
       setPermissionMessage(msg);
       setError(msg);
       return;
     }
 
     const micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+    // Optional: stop the mic track immediately if you're not recording yet
     const audioTrack = micStream.getAudioTracks()[0];
     if (audioTrack) {
+      audioTrack.enabled = false; // Ensure it's not actively capturing audio
       setMicTrack(audioTrack);
     }
+
+    // Stop all audio tracks to prevent "microphone in use" warning in the tab
+    micStream.getAudioTracks().forEach(track => track.stop());
 
     setPermissions((prev) => ({ ...prev, mic: true }));
     onPermissionsGranted({
@@ -137,6 +137,7 @@ const requestMicPermission = async () => {
     setLoading((prev) => ({ ...prev, mic: false }));
   }
 };
+
 
 
   const requestScreenPermission = async () => {
@@ -237,37 +238,7 @@ const startInterview = async () => {
 }, [permissionMessage]);
 
 
-if (showLoader) {
-  return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-blue-50 via-white to-blue-100 flex flex-col items-center justify-center px-6 text-center">
-
-      <Image
-        src="/PLACECOM LOGO SVG.svg"
-        alt="AlmaBay Logo"
-        width={128}
-        height={128} 
-        className="w-24 md:w-32 mb-6 drop-shadow-md"
-      />
-
-      <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-2">
-        Setting Up Your AI Interview Platform
-      </h1>
-      <p className="text-gray-600 mb-6 text-sm md:text-base">
-        Please hold on while we prepare your personalized experience.
-      </p>
-
-      <div className="w-48 md:w-64 h-2 bg-gray-200 rounded-full overflow-hidden relative">
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-indigo-600 animate-loading-bar rounded-full" />
-      </div>
-    </div>
-  );
-}
-
-  
-
 return (
-
-  
   <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4 py-10">
     <div className="w-full max-w-7xl space-y-10">
       <div className="text-center">

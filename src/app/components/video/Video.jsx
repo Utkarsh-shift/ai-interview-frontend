@@ -113,25 +113,25 @@ const Video = ({
     return () => document.removeEventListener("fullscreenchange", checkFullscreen);
   }, [checkFullscreen]);
 
-  useEffect(() => {
-    const handleContextMenu = (e) => e.preventDefault();
-    const handleKeyDown = (e) => {
-      if (
-        e.keyCode === 123 ||
-        (e.ctrlKey && e.shiftKey && [73, 74].includes(e.keyCode)) ||
-        (e.ctrlKey && e.keyCode === 85)
-      ) {
-        e.preventDefault();
-      }
-    };
-    document.addEventListener("contextmenu", handleContextMenu);
-    document.addEventListener("keydown", handleKeyDown);
+  // useEffect(() => {
+  //   const handleContextMenu = (e) => e.preventDefault();
+  //   const handleKeyDown = (e) => {
+  //     if (
+  //       e.keyCode === 123 ||
+  //       (e.ctrlKey && e.shiftKey && [73, 74].includes(e.keyCode)) ||
+  //       (e.ctrlKey && e.keyCode === 85)
+  //     ) {
+  //       e.preventDefault();
+  //     }
+  //   };
+  //   document.addEventListener("contextmenu", handleContextMenu);
+  //   document.addEventListener("keydown", handleKeyDown);
 
-    return () => {
-      document.removeEventListener("contextmenu", handleContextMenu);
-      document.removeEventListener("keydown", handleKeyDown);
-    };
-  }, []);
+  //   return () => {
+  //     document.removeEventListener("contextmenu", handleContextMenu);
+  //     document.removeEventListener("keydown", handleKeyDown);
+  //   };
+  // }, []);
 
   const requestFullScreen = useCallback(() => {
     const el = document.documentElement;

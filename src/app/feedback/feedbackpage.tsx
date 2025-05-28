@@ -28,7 +28,7 @@ export default function FeedbackPage() {
       return;
     }
 
-    const res = await fetch("e_fee/api/savdback", {
+    const res = await fetch("/feedback", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

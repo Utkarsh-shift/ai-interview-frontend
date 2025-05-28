@@ -62,6 +62,9 @@ export interface TranscriptItem {
   createdAtMs: number;
   status: "IN_PROGRESS" | "DONE";
   isHidden: boolean;
+
+  answerStartTime?: number; 
+  answerEndTime?: number;
 }
 
 export interface Log {

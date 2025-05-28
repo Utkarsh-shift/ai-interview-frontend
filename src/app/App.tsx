@@ -65,10 +65,12 @@ const [introMessage, setIntroMessage] = useState<string | null>(null);
   const screenMediaRecorderRef = useRef<MediaRecorder | null>(null);
   const isScreenRecordingRef = useRef(false);
   const screenCaptureStream = useRef<MediaStream | null>(null);
-
+  // const [answerStartTime, setAnswerStartTime] = useState<number | null>(null);
+  // const { updateTranscriptTimestamps } = useTranscript();
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const mediaStreamRef = useRef<MediaStream | null>(null);
   const [clickedStartInterviewButton, setClickedStartInterviewButton] = useState(false);
+  // const [currentItemId, setCurrentItemId] = useState<string | null>(null);
 
   const [isRequestMade, setIsRequestMade] = useState(false); 
   const [isSuccess, setIsSuccess] = useState(false);
@@ -243,6 +245,21 @@ const [introMessage, setIntroMessage] = useState<string | null>(null);
 
   ///////////////////////////////////////////////////////
 
+// const handleStartAnswer = () => {
+//   setAnswerStartTime(Date.now());
+//   // any other logic (mic, animation, etc.)
+// };
+
+// On Stop Answering
+// const handleStopAnswer = (itemId: string) => {
+//   const answerEndTime = Date.now();
+//   if (answerStartTime) {
+
+//     updateTranscriptTimestamps(itemId, answerStartTime, answerEndTime);
+//     setAnswerStartTime(null);
+//   }
+//   // any other logic (mic stop, etc.)
+// };
 
   const handleSessionEnd = useCallback(async () => {
     try {
@@ -1515,9 +1532,11 @@ useEffect(() => {
 
   useEffect(() => {
 
-    if (isSuccess) return;    
+    if (isRequestMade) return;   
+
     if (openaiId  && batch_id) {
-  
+     
+      
       fetch("/api/Lipsync_session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -1529,6 +1548,7 @@ useEffect(() => {
         .then((res) => {
           if (res.status === 201) {
             setIsSuccess(true);
+            setIsRequestMade(true);
             console.log("Success: Session synced.");
           } else {
             console.log("Error: Failed to sync to DB, status:", res.status);
@@ -1537,7 +1557,6 @@ useEffect(() => {
         .catch((err) => console.error(" Sync to DB failed:", err));
 
 
-      setIsRequestMade(true);
     }
   }, [transcriptItems, isRequestMade, isSuccess,batch_id]);
 

@@ -89,11 +89,11 @@ export async function POST(req: NextRequest) {
 
     conn = await pool.getConnection();
 
-    // Initial insert
     if (batch_id && !started_at && !ended_at) {
       await conn.execute(
-        `INSERT IGNORE INTO lipsync_openaiid_batchid (openai_session_id, batch_id, created_at, updated_at)
-         VALUES (?, ?, NOW(), NOW())`,
+        `INSERT INTO lipsync_openaiid_batchid (openai_session_id, batch_id, created_at, updated_at)
+        VALUES (?, ?, NOW(), NOW())
+        ON DUPLICATE KEY UPDATE updated_at = NOW()`,
         [openai_session_id, batch_id]
       );
       return NextResponse.json({ message: "Session inserted" }, { status: 201 });

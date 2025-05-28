@@ -42,6 +42,11 @@ type TranscriptContextValue = {
     itemId: string,
     newStatus: "IN_PROGRESS" | "DONE"
   ) => void;
+  updateTranscriptTimestamps: (
+    itemId: string,
+    startTime: number,
+    endTime: number
+  ) => void;
 };
 
 let finalTranscriptSnapshot = "";
@@ -87,10 +92,26 @@ export const TranscriptProvider: FC<PropsWithChildren> = ({ children }) => {
           createdAtMs: Date.now(),
           status: "IN_PROGRESS",
           isHidden,
+          answerStartTime: Date.now(),
+          answerEndTime : Date.now() ,
         },
       ];
     });
   };
+
+const updateTranscriptTimestamps = (
+  itemId: string,
+  startTime: number,
+  endTime: number
+) => {
+  setTranscriptItems((prev) =>
+    prev.map((item) =>
+      item.itemId === itemId
+        ? { ...item, answerStartTime: startTime, answerEndTime: endTime }
+        : item
+    )
+  );
+};
 
   const updateTranscriptMessage = (
     itemId: string,
@@ -162,13 +183,29 @@ const updateTranscriptItemStatus = (
         (window as any).shouldStopUploading = true;
 
         const saveTranscriptAndExit = async () => {
-          try {
-            console.log(" Saving transcript items:", updated);
+          
+          
+          
+         try {
+            console.log("Saving transcript items:", updated);
+
+            const validUserMessages = updated.filter(
+              (item) =>
+                item.type === "MESSAGE" &&
+                item.role === "user" &&
+                item.title?.trim() &&
+                typeof item.answerStartTime === "number" &&
+                typeof item.answerEndTime === "number"
+            );
+
             const res = await fetch("/api/store_transcript", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ transcriptItems: updated }),
-            });
+              body: JSON.stringify({ transcriptItems: validUserMessages }),
+           });
+
+
+
 
             if (!res.ok) {
               const text = await res.text();
@@ -187,19 +224,19 @@ const updateTranscriptItemStatus = (
 
           if (openaiId) {
 
-                try {
-      await fetch("/api/Lipsync_session", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          openai_session_id: openaiId,
-          ended_at: new Date().toISOString(),
-        }),
-      });
-      console.log("✅ ended_at updated for", openaiId);
-    } catch (err) {
-      console.error("❌ Error updating ended_at in lipsync session:", err);
-    }
+          try {
+            await fetch("/api/Lipsync_session", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                openai_session_id: openaiId,
+                ended_at: new Date().toISOString(),
+              }),
+            });
+            console.log("✅ ended_at updated for", openaiId);
+          } catch (err) {
+            console.error("❌ Error updating ended_at in lipsync session:", err);
+          }
 
             const NGROK_URL = process.env.NEXT_PUBLIC_BACKEND_NGROK_URL;
             const token = localStorage.getItem("authToken") ;
@@ -297,6 +334,7 @@ const updateTranscriptItemStatus = (
         addTranscriptBreadcrumb,
         toggleTranscriptItemExpand,
         updateTranscriptItemStatus,
+        updateTranscriptTimestamps,
       }}
     >
       {children}
