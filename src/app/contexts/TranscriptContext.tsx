@@ -42,11 +42,6 @@ type TranscriptContextValue = {
     itemId: string,
     newStatus: "IN_PROGRESS" | "DONE"
   ) => void;
-  updateTranscriptTimestamps: (
-    itemId: string,
-    startTime: number,
-    endTime: number
-  ) => void;
 };
 
 let finalTranscriptSnapshot = "";
@@ -61,13 +56,20 @@ export const TranscriptProvider: FC<PropsWithChildren> = ({ children }) => {
   const [transcriptItems, setTranscriptItems] = useState<TranscriptItem[]>([]);
   const fullTranscriptRef = useRef<string>("");
 
-  const newTimestampPretty = (): string =>
-    new Date().toLocaleTimeString([], {
-      hour12: true,
-      hour: "numeric",
-      minute: "2-digit",
-      second: "2-digit",
-    });
+const newTimestampPretty = (): string => {
+  const now = new Date();
+
+  const year = now.getFullYear();
+  const month = (now.getMonth() + 1).toString().padStart(2, "0"); // months are 0-indexed
+  const day = now.getDate().toString().padStart(2, "0");
+
+  const hours = now.getHours().toString().padStart(2, "0");
+  const minutes = now.getMinutes().toString().padStart(2, "0");
+  const seconds = now.getSeconds().toString().padStart(2, "0");
+  const milliseconds = now.getMilliseconds().toString().padStart(3, "0");
+
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}.${milliseconds}`;
+};
 
   const addTranscriptMessage = (
     itemId: string,
@@ -92,26 +94,10 @@ export const TranscriptProvider: FC<PropsWithChildren> = ({ children }) => {
           createdAtMs: Date.now(),
           status: "IN_PROGRESS",
           isHidden,
-          answerStartTime: Date.now(),
-          answerEndTime : Date.now() ,
         },
       ];
     });
   };
-
-const updateTranscriptTimestamps = (
-  itemId: string,
-  startTime: number,
-  endTime: number
-) => {
-  setTranscriptItems((prev) =>
-    prev.map((item) =>
-      item.itemId === itemId
-        ? { ...item, answerStartTime: startTime, answerEndTime: endTime }
-        : item
-    )
-  );
-};
 
   const updateTranscriptMessage = (
     itemId: string,
@@ -183,29 +169,13 @@ const updateTranscriptItemStatus = (
         (window as any).shouldStopUploading = true;
 
         const saveTranscriptAndExit = async () => {
-          
-          
-          
-         try {
-            console.log("Saving transcript items:", updated);
-
-            const validUserMessages = updated.filter(
-              (item) =>
-                item.type === "MESSAGE" &&
-                item.role === "user" &&
-                item.title?.trim() &&
-                typeof item.answerStartTime === "number" &&
-                typeof item.answerEndTime === "number"
-            );
-
+          try {
+            console.log(" Saving transcript items:", updated);
             const res = await fetch("/api/store_transcript", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ transcriptItems: validUserMessages }),
-           });
-
-
-
+              body: JSON.stringify({ transcriptItems: updated }),
+            });
 
             if (!res.ok) {
               const text = await res.text();
@@ -224,19 +194,19 @@ const updateTranscriptItemStatus = (
 
           if (openaiId) {
 
-          try {
-            await fetch("/api/Lipsync_session", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                openai_session_id: openaiId,
-                ended_at: new Date().toISOString(),
-              }),
-            });
-            console.log("✅ ended_at updated for", openaiId);
-          } catch (err) {
-            console.error("❌ Error updating ended_at in lipsync session:", err);
-          }
+                try {
+      await fetch("/api/Lipsync_session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          openai_session_id: openaiId,
+          ended_at: new Date().toISOString(),
+        }),
+      });
+      console.log(" ended_at updated for", openaiId);
+    } catch (err) {
+      console.error(" Error updating ended_at in lipsync session:", err);
+    }
 
             const NGROK_URL = process.env.NEXT_PUBLIC_BACKEND_NGROK_URL;
             const token = localStorage.getItem("authToken") ;
@@ -334,7 +304,6 @@ const updateTranscriptItemStatus = (
         addTranscriptBreadcrumb,
         toggleTranscriptItemExpand,
         updateTranscriptItemStatus,
-        updateTranscriptTimestamps,
       }}
     >
       {children}

@@ -16,27 +16,27 @@ export default function InterviewPageClient() {
   const [batchId] = useState<string | null>(batchIdFromUrl);
   const [jobId] = useState<string | null>(jobIdFromUrl);
   const [isValidBatchId, setIsValidBatchId] = useState<boolean | null>(null);
+  const [sessionStatus, setSessionStatus] = useState<"pending" | "expired" | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [, setErrorMessage] = useState<string>("");
   const [token, setToken] = useState<string>("");
 
-  // 👇 New loader state
   const [showLoader, setShowLoader] = useState(true);
 
-  // 👇 Loader timer effect
+  // Loader animation (first 2.5 seconds)
   useEffect(() => {
     const timer = setTimeout(() => setShowLoader(false), 2500);
     return () => clearTimeout(timer);
   }, []);
 
-  // 👇 Store values from URL into localStorage
+  // Store URL params in localStorage
   useEffect(() => {
     if (batchIdFromUrl) localStorage.setItem("batch_id", batchIdFromUrl);
     if (jobIdFromUrl) localStorage.setItem("job_id", jobIdFromUrl);
     if (redirectUrl) localStorage.setItem("redirect_url", redirectUrl);
   }, [batchIdFromUrl, jobIdFromUrl, redirectUrl]);
 
-  // 👇 Fetch token
+  // Token fetch logic
   useEffect(() => {
     const fetchToken = async () => {
       const storedToken = localStorage.getItem("authToken");
@@ -74,7 +74,7 @@ export default function InterviewPageClient() {
     fetchToken();
   }, []);
 
-  // 👇 Verify batch ID
+  // Validate Batch ID existence
   useEffect(() => {
     if (!batchId || !token) return;
 
@@ -112,7 +112,40 @@ export default function InterviewPageClient() {
     checkBatchId();
   }, [batchId, token]);
 
-  // 👇 Show loader first
+  // Validate interview session status
+  useEffect(() => {
+    if (!batchId || !token || isValidBatchId === false) return;
+
+    const validateLink = async () => {
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_NGROK_URL}/api/validate-link/`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ batch_id: batchId }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.status === "success" && data.message.includes("session is pending")) {
+          setSessionStatus("pending");
+        } else {
+          setSessionStatus("expired");
+          setErrorMessage(data.message || "Session has expired.");
+        }
+      } catch (error) {
+        console.error("Error validating link:", error);
+        setSessionStatus("expired");
+        setErrorMessage("Error validating session link.");
+      }
+    };
+
+    validateLink();
+  }, [batchId, token, isValidBatchId]);
+
+  // Loader page (first 2.5 seconds)
   if (showLoader) {
     return (
       <div className="min-h-screen w-full bg-gradient-to-br from-blue-50 via-white to-blue-100 flex flex-col items-center justify-center px-6 text-center">
@@ -136,74 +169,53 @@ export default function InterviewPageClient() {
     );
   }
 
-  if (loading) return <div>Loading...</div>;
+  // Still loading or waiting for checks
+  if (loading || isValidBatchId === null || sessionStatus === null) return <div>Loading...</div>;
 
-  // 👇 Invalid link condition
-  if (!batchId || !jobId || isValidBatchId === false)
-  return (
-    <div
-      style={{
-        height: "100vh",
-        width: "100vw",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "center",
-        alignItems: "center",
-        background: "linear-gradient(135deg, #f0f4f8, #dfe9f3)",
-        fontFamily: "Segoe UI, sans-serif",
-        textAlign: "center",
-        padding: "20px",
-      }}
-    >
-      <div
-        style={{
-          fontSize: "72px",
-          fontWeight: "bold",
-          color: "#ff6b6b",
-          marginBottom: "10px",
-        }}
-      >
-        404
+  // Invalid link or batchId/jobId missing
+  if (!batchId || !jobId || isValidBatchId === false) {
+    return (
+      <div className="min-h-screen w-full bg-gradient-to-br from-red-50 via-white to-red-100 flex flex-col items-center justify-center px-6 text-center">
+        <h1 className="text-4xl font-bold text-red-600 mb-2">404</h1>
+        <p className="text-lg text-gray-700 mb-4">Invalid Interview Link</p>
+        <p className="text-sm text-gray-500 mb-6">
+          The interview link you followed is invalid, or the <strong>Batch ID</strong> / <strong>Job ID</strong> does not exist.
+        </p>
+        <button
+          onClick={() => window.location.href = redirectUrl || "/"}
+          className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+        >
+          Return to Homepage
+        </button>
       </div>
-      <h1
-        style={{
-          fontSize: "2.5rem",
-          color: "#2f3542",
-          marginBottom: "10px",
-        }}
-      >
-        Invalid Interview Link
-      </h1>
-      <p
-        style={{
-          fontSize: "1.2rem",
-          color: "#57606f",
-          maxWidth: "600px",
-          marginBottom: "30px",
-        }}
-      >
-        The interview link you followed is invalid, or the <strong>Batch ID</strong> / <strong>Job ID</strong> does not exist in our system. Please check the URL or contact support.
-      </p>
-      <button
-        onClick={() => window.location.href = redirectUrl || "/"}
-        style={{
-          padding: "12px 24px",
-          backgroundColor: "#2ed573",
-          color: "#fff",
-          fontSize: "1rem",
-          border: "none",
-          borderRadius: "8px",
-          cursor: "pointer",
-          boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
-          transition: "background 0.3s ease",
-        }}
-        onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#28c76f")}
-        onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#2ed573")}
-      >
-        Return to Homepage
-      </button>
-    </div>
-  );
+    );
+  }
+
+  if (sessionStatus === "expired") {
+    return (
+      <div className="min-h-screen w-full bg-gradient-to-br from-red-50 via-white to-red-100 flex flex-col items-center justify-center px-6 text-center">
+        <Image
+          src="/PLACECOM LOGO SVG.svg"
+          alt="AlmaBay Logo"
+          width={128}
+          height={128}
+          className="w-24 md:w-32 mb-6 drop-shadow-md"
+        />
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-2">
+          Interview Session Expired
+        </h1>
+        <p className="text-gray-600 mb-6 text-sm md:text-base">
+          This interview session has already been attempted or the session has expired.
+        </p>
+        <button
+          onClick={() => window.location.href = redirectUrl || "/"}
+          className="px-6 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition"
+        >
+          Return to Homepage
+        </button>
+      </div>
+    );
+  }
 
 
   return (

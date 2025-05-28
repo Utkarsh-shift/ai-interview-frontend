@@ -48,7 +48,7 @@ interface StudentData {
   updated_at: string;
 }
 
-function App({ batch_id }: AppProps) {
+function App({ batch_id, job_id }: AppProps) {
 
 const [introMessage, setIntroMessage] = useState<string | null>(null);
 
@@ -1534,7 +1534,7 @@ useEffect(() => {
 
     if (isRequestMade) return;   
 
-    if (openaiId  && batch_id) {
+    if (openaiId  && batch_id && job_id) {
      
       
       fetch("/api/Lipsync_session", {
@@ -1543,6 +1543,7 @@ useEffect(() => {
         body: JSON.stringify({
           openai_session_id: openaiId,
           batch_id : batch_id,
+          job_id:job_id
         }),
       })
         .then((res) => {
@@ -1558,7 +1559,7 @@ useEffect(() => {
 
 
     }
-  }, [transcriptItems, isRequestMade, isSuccess,batch_id]);
+  }, [transcriptItems, isRequestMade, isSuccess,batch_id,job_id]);
 
 
 
