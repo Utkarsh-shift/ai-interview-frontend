@@ -1,4 +1,4 @@
-import e from "cors";
+
 import { AgentConfig } from "../../types";
 import { getLocalizedIntro } from "./select_language";
 
