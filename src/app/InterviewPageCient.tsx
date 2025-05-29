@@ -129,7 +129,7 @@ export default function InterviewPageClient() {
 
         const data = await response.json();
 
-        if (response.ok && data.status === "success" && data.message.includes("session is pending")) {
+        if (response.ok && data.status === "success") {
           setSessionStatus("pending");
         } else {
           setSessionStatus("expired");
