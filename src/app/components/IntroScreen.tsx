@@ -99,7 +99,6 @@ const [screenPermissionError, setScreenPermissionError] = useState(false);
   
   
   const requestMicPermission = async () => {
-  // const activeMicStream = await navigator.mediaDevices.getUserMedia({ audio: true });
   try {
     setError(null);
     setLoading((prev) => ({ ...prev, mic: true }));

@@ -1284,12 +1284,16 @@ const updateSession = async (shouldTriggerResponse: boolean = false) => {
 
   }
 };
-
 useEffect(() => {
   if (clickedStartInterviewButton && introMessage) {
-    console.log("Interview started. Sending intro message...");
-    sendSimulatedUserMessage(introMessage);
-    setIntroMessage(null); // clear to prevent re-trigger
+    const timeout = setTimeout(() => {
+      console.log("Interview started. Sending intro message...");
+      sendSimulatedUserMessage(introMessage);
+      setIntroMessage(null); 
+    }, 1000); 
+
+   
+    return () => clearTimeout(timeout);
   }
 }, [clickedStartInterviewButton, introMessage]);
 
