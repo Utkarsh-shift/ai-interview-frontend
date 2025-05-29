@@ -98,30 +98,40 @@ const [screenPermissionError, setScreenPermissionError] = useState(false);
   };
   
   
-  const requestMicPermission = async () => {
+const requestMicPermission = async () => {
   try {
     setError(null);
     setLoading((prev) => ({ ...prev, mic: true }));
 
     const hasMic = await checkDeviceAvailability("audioinput");
     if (!hasMic) {
-      const msg = " No microphone detected. Please connect a mic to continue.";
+      const msg = "No microphone detected. Please connect a mic to continue.";
       setPermissionMessage(msg);
       setError(msg);
       return;
     }
 
-    const micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const micPermission = await navigator.permissions.query({
+      name: "microphone" as PermissionName,
+    });
 
-    // Optional: stop the mic track immediately if you're not recording yet
-    const audioTrack = micStream.getAudioTracks()[0];
-    if (audioTrack) {
-      audioTrack.enabled = false; // Ensure it's not actively capturing audio
-      setMicTrack(audioTrack);
+    if (micPermission.state === "denied") {
+      const msg = "Microphone access has been denied. Please allow it in browser settings.";
+      setPermissionMessage(msg);
+      setError(msg);
+      return;
     }
 
-    // Stop all audio tracks to prevent "microphone in use" warning in the tab
-    micStream.getAudioTracks().forEach(track => track.stop());
+    if (micPermission.state !== "granted") {
+      const micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      micStream.getAudioTracks().forEach(track => track.stop());
+
+      const audioTrack = micStream.getAudioTracks()[0];
+      if (audioTrack) {
+        audioTrack.enabled = false;
+        setMicTrack(audioTrack);
+      }
+    }
 
     setPermissions((prev) => ({ ...prev, mic: true }));
     onPermissionsGranted({
@@ -136,7 +146,6 @@ const [screenPermissionError, setScreenPermissionError] = useState(false);
     setLoading((prev) => ({ ...prev, mic: false }));
   }
 };
-
 
 
   const requestScreenPermission = async () => {

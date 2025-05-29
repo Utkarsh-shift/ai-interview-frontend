@@ -246,22 +246,6 @@ const [introMessage, setIntroMessage] = useState<string | null>(null);
 
   ///////////////////////////////////////////////////////
 
-// const handleStartAnswer = () => {
-//   setAnswerStartTime(Date.now());
-//   // any other logic (mic, animation, etc.)
-// };
-
-// On Stop Answering
-// const handleStopAnswer = (itemId: string) => {
-//   const answerEndTime = Date.now();
-//   if (answerStartTime) {
-
-//     updateTranscriptTimestamps(itemId, answerStartTime, answerEndTime);
-//     setAnswerStartTime(null);
-//   }
-//   // any other logic (mic stop, etc.)
-// };
-
   const handleSessionEnd = useCallback(async () => {
     try {
       if (mediaRecorderRef.current?.state === "recording") {
@@ -431,33 +415,6 @@ if (!audioElementRef.current) {
       disconnectFromRealtime();
     }
   }, [interviewEnded]);
-
-
-
-// useEffect(() => {
-//   const loadAgents = async () => {
-//     const { agentsMap, agentsList } = await getAgents(); 
-//     const selectedAgent = agentsList[0]; 
-
-//     if (!selectedAgent) {
-//       console.warn(" No agent found in agentsList");
-//       return;
-//     }
-
-    
-//     const agentConfigParam = searchParams.get("agentConfig");
-//     if (!agentConfigParam || !(agentConfigParam in agentsMap)) {
-//       const newUrl = new URL(window.location.href);
-//       newUrl.searchParams.set("agentConfig", selectedAgent.name);
-//       window.history.replaceState({}, "", newUrl.toString());
-//     }
-
-//     setSelectedAgentName(selectedAgent.name);
-//     setSelectedAgentConfigSet([selectedAgent]); 
-//   };
-
-//   loadAgents();
-// }, [searchParams]);
 
 
 useEffect(() => {
@@ -644,17 +601,23 @@ useEffect(() => {
   
 
   const startVideoRecording = async () => {
-    try {
-      let stream = cameraStreamRef.current;
-      if (!stream) {
-        stream = await navigator.mediaDevices.getUserMedia({
-          video: { width: 1280, height: 720, frameRate: 30 },
-          audio: true,
-        });
-      }
-  
-      mediaStreamRef.current = stream;
-      isCameraRecordingRef.current = true;
+ try {
+  let stream = cameraStreamRef.current;
+  if (!stream) {
+    const constraints: MediaStreamConstraints = {
+      video: { width: 1280, height: 720, frameRate: 30 },
+    };
+
+    
+    if (permissions.mic) {
+      constraints.audio = true;
+    }
+
+    stream = await navigator.mediaDevices.getUserMedia(constraints);
+  }
+
+  mediaStreamRef.current = stream;
+  isCameraRecordingRef.current = true;
   
       const mimeType = getSupportedMimeType();
   
@@ -703,10 +666,10 @@ useEffect(() => {
       };
   
       recordChunk();
-      console.log("🎥 Started camera recording");
+      console.log("Started camera recording");
   
     } catch (err) {
-      console.error("❌ Failed to start camera recording:", err);
+      console.error("Failed to start camera recording:", err);
     }
   };
   
@@ -943,25 +906,6 @@ useEffect(() => {
     }
   }, [sessionStatus, permissions.screen, sharedScreenStream]);
   
-
-// useEffect(() => {
-//   if (sessionStatus === "CONNECTED" && permissions.screen && sharedScreenStream) {
-//     const startRecordings = async () => {
-//       try {
-//         await startScreenRecording(sharedScreenStream);
-//         if (permissions.camera) {
-//           await startVideoRecording();
-//         }
-//       } catch (error) {
-//         console.error("Error starting recordings:", error);
-//       }
-//     };
-
-//     startRecordings();
-//   }
-// }, [sessionStatus, permissions.screen, permissions.camera, sharedScreenStream, sessionId]);
-
-
 
   useEffect(() => {
     const interval = setInterval(() => {
