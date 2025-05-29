@@ -22,10 +22,10 @@ const storedJobId = localStorage.getItem("job_id");
   console.log("Job data:", jobData);
 
   const {
-
+    focus_skills,
     minExperience,
     maxExperience,
-
+    behavioural_skills,
   } = jobData;
 
     const localizedIntro = getLocalizedIntro(selectedLanguage);

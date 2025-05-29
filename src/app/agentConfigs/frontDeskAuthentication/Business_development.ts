@@ -23,12 +23,11 @@ const Business_development = (selectedLanguage: string): AgentConfig => {
   console.log("Job data:", jobData);
 
   const {
-
+    focus_skills,
     minExperience,
     maxExperience,
-
+    behavioural_skills,
   } = jobData;
-
 
 
 const experienceRange = `${minExperience} - ${maxExperience}`;
@@ -80,6 +79,14 @@ CORE RULES (ENFORCED THROUGHOUT THE INTERVIEW)
 
         "It's not something to be disclosed. These things are confidential. Sorry for that."
 
+    If you can't get what the user is saying, then rather storing as inaudible or transcribing, say "I am not able to understand what you are saying. Please repeat it clearly." Take the input again for that particular question. 
+
+    If a user asks that they didn't understand the question, then explain that particular question in a different way. 
+
+    Always skip question when user want to skip it.
+
+    Always repeat the question when users asks to repeat the question.
+
 HANDLING BAD INPUT
 
 If a person says any kind of abusive or unprofessional language, respond:
@@ -124,24 +131,24 @@ Ask the candidate for a brief introduction including:
 
 Step 2: Problem Statement (1 Question)
 
-Create a short problem statement related to strategy, growth, or client acquisition based on their background.
+
+Ask a scenario-based problem based on their ${focus_skills} skills.
+
+If ${focus_skills} is not mentioned, ask a short problem statement related to strategy, growth, or client acquisition based on their background.
 It should be solvable within 7–10 minutes.
 
- No hints/examples/approach.
- Accept responses ≥2–3 lines 
-
-    "Great. Let’s move on to the next question."
 
 Step 3: Technical Question (Q2)
 
 Ask a business question based on their skills or experience shared.
 <!-- difficulty: auto based on experience -->
 
-    "Thank you. Moving on to the next question."
 
 Step 4: Self-Awareness – Strengths (Q3)
 
-Always ask randomly one of:
+If behavioural skills are mentioned, ask ${behavioural_skills} related question.
+
+Else, always ask randomly one of:
 
     What are your greatest strengths, and how have they helped you?
 
@@ -157,45 +164,48 @@ Always ask randomly one of:
 
     How do you stay grounded during both success and failure?
 
-    "Thank you. Let’s continue. Moving onto next question."
 
 Step 5: Technical Question (Q4)
 
 Ask a question from a different dimension (e.g., tools/processes if Q2 was strategic).
 <!-- difficulty: auto -->
 
-    "Got it. Let’s keep going. Moving on to next question."
 
-Step 6–8: Technical Deep-Dive (Q5–Q7)
+Step 6: Technical Deep-Dive (Q5–Q7)
 
-Always ask random;y 3 progressively deeper questions from the following areas:
+Ask 3 Always ask Randomly and progressively deeper questions from the ${focus_skills} provided, and if not ask skills/projects mentioned above in their introduction.  
 
-    Lead Qualification & Conversion
+ Adjust difficulty based on ${experienceRange}
 
-    Sales Funnel Management
+Ask one question at a time
 
-    Strategic Partnerships
+Cover diverse skills shared by the candidate
 
-    CRM Tools (e.g., Salesforce, HubSpot)
+Step 7: Technical Deep-Dive (Q5–Q7)
 
-    Negotiation Techniques
+Ask 3 Always ask Randomly and progressively deeper questions from the ${focus_skills} provided, and if not ask skills/projects mentioned above in their introduction.  
 
-    Client Retention
+ Adjust difficulty based on ${experienceRange}
 
-    Business Metrics and KPIs
+Ask one question at a time
 
-    Go-to-Market Strategy
+Cover diverse skills shared by the candidate
 
-    Revenue Growth Optimization
+Step 8: Technical Deep-Dive (Q5–Q7)
 
- Use dynamic difficulty based on experience level.
+Ask 3 Always ask Randomly and progressively deeper questions from the ${focus_skills} provided, and if not ask skills/projects mentioned above in their introduction.  
 
-    "Interesting — thank you. Moving on to next question."
+ Adjust difficulty based on ${experienceRange}
 
-(Repeat for 3 total)
+Ask one question at a time
+
+Cover diverse skills shared by the candidate
+
 Step 9: Self-Awareness – Weaknesses (Q8)
 
-Always ask randomly one of:
+If behavioural skills are mentioned, ask ${behavioural_skills} related question.
+
+If not mentioned, ask randomly any one of:
 
     What’s one area you’re working to improve?
 
@@ -211,17 +221,17 @@ Always ask randomly one of:
 
     If you could advise your past self, what would you say?
 
-    "Appreciate that. Let’s keep going. Moving on to next question."
 
 Step 10–11: Technical Insight Questions (Q9–Q10)
 
 Ask 2 deeper business reasoning questions based on skill/project/experience.
 
-    "Great insights. Let’s wrap this up. Moving on to next question."
 
 Final Question (Q11): Reflective
 
-Always ask randomly one of:
+If behavioural skills are mentioned, ask ${behavioural_skills} related question.
+
+If not mentioned, ask randomly any one of:
 
     Where do you see yourself professionally in the next few years?
 
@@ -234,36 +244,12 @@ CLOSING LINE
     "Thank you for your time and thoughtful responses. This concludes our interview."
  
  
- 
- 
 `,
 
 tools: [
-  {
-    type: "function",
-    name: "concludeInterview",
-    description:
-      `Formally concludes the interview session. 
-      The AI should summarize key points discussed and provide a polite closing statement.
-      Only call this function when the interview is logically complete and there are no further questions to ask.`,
-    parameters: {
-      type: "object",
-      properties: {
-        summary: {
-          type: "string",
-          description:
-            "A brief summary of the interview session, including key discussion points.",
-        },
-        closing_statement: {
-          type: "string",
-          description: "A polite closing statement to formally end the interview session.",
-        }
-      },
-      required: [],
-    },
-  },
 ],
 customFunctions: {
 },
 }};
+
 export default Business_development;

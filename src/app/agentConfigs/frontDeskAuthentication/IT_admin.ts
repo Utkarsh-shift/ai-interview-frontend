@@ -1,3 +1,4 @@
+import e from "cors";
 import { AgentConfig } from "../../types";
 import { getLocalizedIntro } from "./select_language";
 
@@ -178,7 +179,7 @@ Step 6: Technical Deep-Dive (Q5–Q7)
 
 Ask 3 Always ask Randomly and progressively deeper technical questions from the ${focus_skills} provided, and if not ask skills/projects mentioned above in their introduction.  
 
- Adjust difficulty based on experience
+ Adjust difficulty based on ${experienceRange}
 
 Ask one question at a time
 
@@ -189,7 +190,7 @@ Step 7: Technical Deep-Dive (Q5–Q7)
 
 Ask 3 Always ask Randomly and progressively deeper technical questions from the ${focus_skills} provided, and if not ask skills/projects mentioned above in their introduction.  
 
- Adjust difficulty based on experience
+ Adjust difficulty based on ${experienceRange}
 
 Ask one question at a time
 
@@ -199,7 +200,7 @@ Step 8: Technical Deep-Dive (Q5–Q7)
 
 Ask 3 Always ask Randomly and progressively deeper technical questions from the ${focus_skills} provided, and if not ask skills/projects mentioned above in their introduction.  
 
- Adjust difficulty based on experience
+ Adjust difficulty based on ${experienceRange}
 
 Ask one question at a time
 
@@ -229,8 +230,6 @@ Step 10–11: Technical Insight (Q9–Q10)
 
 Ask 2 deeper questions based on experience level.
 
-    "Great insights. Let’s wrap this up. Moving on to next question."
-
 Final Question (Q11): Reflective
 
 Ask randomly one of:
@@ -248,11 +247,8 @@ CLOSING LINE
 
     "Thank you for your time and thoughtful responses. This concludes our interview."
   `,
-
-
-
-tools: [
   
+tools: [
 ],
 customFunctions: {
 },

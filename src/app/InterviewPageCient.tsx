@@ -145,7 +145,6 @@ export default function InterviewPageClient() {
     validateLink();
   }, [batchId, token, isValidBatchId]);
 
-  // Loader page (first 2.5 seconds)
   if (showLoader) {
     return (
       <div className="min-h-screen w-full bg-gradient-to-br from-blue-50 via-white to-blue-100 flex flex-col items-center justify-center px-6 text-center">

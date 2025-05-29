@@ -61,6 +61,7 @@ const [introMessage, setIntroMessage] = useState<string | null>(null);
   const [showIntro, setShowIntro] = useState(true);
   const searchParams = useSearchParams();
   const [token, setToken] = useState("");
+  const [hasFetchError, setHasFetchError] = useState(false);
 
   const screenMediaRecorderRef = useRef<MediaRecorder | null>(null);
   const isScreenRecordingRef = useRef(false);
@@ -1279,6 +1280,8 @@ const updateSession = async (shouldTriggerResponse: boolean = false) => {
     }
   } catch (error) {
     console.error("Error fetching student data:", error);
+    setHasFetchError(true);
+
   }
 };
 
@@ -1608,6 +1611,60 @@ useEffect(() => {
 
   const agentSetKey = searchParams.get("agentConfig") || "default";
   const cameraStreamRef = useRef<MediaStream | null>(null);
+
+if (hasFetchError) {
+  return (
+    <div
+      style={{
+        height: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: "#ffe5e5",
+        color: "#b00020",
+        padding: "2rem",
+        fontFamily: "Arial, sans-serif",
+      }}
+    >
+      <div
+        style={{
+          backgroundColor: "#fff",
+          padding: "2rem",
+          borderRadius: "1rem",
+          boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+          maxWidth: "400px",
+          textAlign: "center",
+        }}
+      >
+        <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>⚠️</div>
+        <h2 style={{ fontSize: "1.5rem", marginBottom: "0.5rem" }}>
+          Unable to Start Interview
+        </h2>
+        <p style={{ marginBottom: "1.5rem", color: "#444" }}>
+          There was an error fetching your data. Please try again later.
+        </p>
+        <button
+          onClick={() => {
+            setHasFetchError(false);
+         
+          }}
+          style={{
+            backgroundColor: "#b00020",
+            color: "#fff",
+            padding: "0.5rem 1.25rem",
+            borderRadius: "0.5rem",
+            border: "none",
+            cursor: "pointer",
+            fontWeight: "bold",
+          }}
+        >
+          Retry
+        </button>
+      </div>
+    </div>
+  );
+}
 
   return (
     <div className="flex flex-col h-screen bg-gray-100 text-gray-800">
