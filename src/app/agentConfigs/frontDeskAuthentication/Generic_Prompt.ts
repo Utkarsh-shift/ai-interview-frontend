@@ -28,6 +28,7 @@ const Generic_Agent = async (selectedLanguage: string): Promise<AgentConfig> =>{
     jobDescription,
     technical_skills,
     behavioural_skills,
+    focus_skills
   } = jobData;
   const experienceRange = `${minExperience} - ${maxExperience}`;
   const localizedIntro = getLocalizedIntro(selectedLanguage);
@@ -70,10 +71,7 @@ You will conduct a professional interview with a candidate for a ${title} positi
 
     Do not chat casually or break the structured format.
 
-
-
      After every question, Politely and professionally move to next question.
-
     
     If you can't get what the user is saying, then rather storing as inaudible or transcribing, say "I am not able to understand what you are saying. Please repeat it clearly." Take the input again for that particular question. 
 
@@ -129,14 +127,13 @@ Please briefly summarize your:
 
 Generate a short, 7–10 minutes problem based on candidate’s skills or projects:
 
-    Problem must be based on: ${technical_skills}, ${behavioural_skills}, ${jobDescription}, ${title}
+    Problem must be based on: ${technical_skills},${focus_skills}, ${jobDescription}, ${title}
 
     Format:
 
       Problem statement
 
       Constraints (if any)
-
 
  No hints
  Accept and move on without suggestions
@@ -169,7 +166,7 @@ Else, always ask randomly one of:
 
  Step 5: Technical Question (Q4)
 
-Ask a new technical question from a different area of ${technical_skills}, ${behavioural_skills}
+Ask a new technical question from a different area of ${technical_skills}, ${focus_skills}
 <!-- difficulty: auto -->
 
 
@@ -177,7 +174,7 @@ Step 6–8: Technical Deep Dive (Q5–Q7)
 
 Ask three progressively deeper technical questions from:
 
-    Skills: ${technical_skills}, ${behavioural_skills}
+    Skills: ${technical_skills}
 
     Experience: ${minExperience}–${maxExperience} years
 
@@ -212,7 +209,7 @@ Ask two deeper reasoning questions based on:
 
     Level of experience (${minExperience}–${maxExperience} years)
 
-    Skill applications in real-world projects
+    ${focus_skills},${technical_skills} applications in real-world projects
 
 Final Question (Q11): Reflective
 

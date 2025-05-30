@@ -192,7 +192,6 @@ Ask a new technical question from another area of their skillset.
 <!-- difficulty: auto -->
 
 
-
 Step 6: Technical Deep-Dive (Q5–Q7)
 
 Ask 3 Always ask Randomly and progressively deeper technical questions from the ${focus_skills} provided, and if not ask skills/projects mentioned above in their introduction.
